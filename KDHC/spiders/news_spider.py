@@ -38,7 +38,7 @@ class NewsSpider(scrapy.Spider):
                 cursor.execute(sql)
                 result = cursor.fetchall()
         except Exception as e:
-            self.log(str(e))
+            self.logger.error(str(e))
         finally:
             conn.close()
         return result
@@ -75,12 +75,13 @@ class NewsSpider(scrapy.Spider):
                     message_title = p.xpath('./title/text()').extract_first()
                     message_body = p.xpath('./description/text()').extract_first()
                     result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
-                    self.log(result)
+                    if (result['failure'] != 0):
+                        self.logger.error(result)
         except pymysql.IntegrityError as e:
-            self.log("DUPLICATE ENTRY");
-            self.log(str(e))
+            self.logger.info("DUPLICATE ENTRY");
+            self.logger.info(str(e))
         except Exception as e:
-            self.log(str(e))
+            self.logger.error(str(e))
         finally:
             conn.close()
 
