@@ -2,6 +2,7 @@ import scrapy
 import pymysql
 import json
 
+from datetime import datetime
 from pyfcm import FCMNotification
 
 class NewsSpider(scrapy.Spider):
@@ -45,7 +46,7 @@ class NewsSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.get_crawl_url():
-            yield scrapy.Request(url=url['url'], callback=self.parse)
+            yield scrapy.Request(url=url['url'], callback=self.parse, meta={'url_id': url['url_id']})
 
     def parse(self, response):
         conn = pymysql.connect( host=self.host,
@@ -56,27 +57,32 @@ class NewsSpider(scrapy.Spider):
                                 cursorclass=pymysql.cursors.DictCursor)
         
         push_service = FCMNotification(api_key=self.api_key)
-        registration_id = 'emGlTpbG6D8:APA91bENFD8OJ62V7S3Ho_PTlOMJDAZVeSD1Y8ztrC2-D0bJcl3Ljh-2kqmZslF3Mo1dzYZwH5wL3ZBf1Wq1phfVNqbQfMmF5on4-bWUqXSSCMTfkeh2b9edIMs6YTxz6mZ8T_3qedUK'
+        registration_id = 'e-h1Nmafro0:APA91bHN2IZ6bd98dpgLvsNTdcTuq5UWOM3vMqaBn1y_Re0taQ4_TUhDw9gOKF0ny4KYsxM3BLOjtTureQ6Ns1Kc-e6ofV2sYkTuvDPyObw0ukWnQJgDosG1Ots2wo2S6SWZrIHeqT13'
         
         #under the assumption that no new article (that hasn't been saved to db) will be in between old articles
         #so it commits new articles until duplicate article is found. When duplicate is found, raise integrity error
         try:
+            messages_to_be_sent = []
             for p in response.xpath('//item'):
                 with conn.cursor() as cursor:
-                    sql = "INSERT INTO `news` (`news_url`, `crawled_url`, `title`, `description`, `pub_date`, `author`, `category`) VALUES (%s, %s, %s, %s, now(), %s, %s)"
+                    self.log(p.xpath('./pubDate/text()').extract_first())
+                    sql = "INSERT INTO `news` (`news_url`, `crawled_url_id`, `title`, `description`, `pub_date`, `author`, `category`) " 
+                    sql += "VALUES (%s, %s, %s, %s, %s, %s, %s)"
                     cursor.execute(sql, (p.xpath('./link/text()').extract_first(), 
-                                        response.request.url, 
+                                        response.meta['url_id'], 
                                         p.xpath('./title/text()').extract_first(), 
                                         p.xpath('./description/text()').extract_first(), 
+                                        datetime.strptime(p.xpath('./pubDate/text()').extract_first()[:-6],'%a, %d %b %Y %H:%M:%S'),
                                         p.xpath('./author/text()').extract_first(), 
                                         p.xpath('./category/text()').extract_first(),))
                     conn.commit()
-                    #alert
-                    message_title = p.xpath('./title/text()').extract_first()
-                    message_body = p.xpath('./description/text()').extract_first()
-                    result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
-                    if (result['failure'] != 0):
-                        self.logger.error(result)
+                    #save messages to be sent
+                    messages_to_be_sent.append({'title' : p.xpath('./title/text()').extract_first(), 'body' : p.xpath('./description/text()').extract_first()})
+            while(len(messages_to_be_sent) != 0):
+                message = messages_to_be_sent.pop()
+                result = push_service.notify_single_device(registration_id=registration_id, message_title=message['title'], message_body=message['body'])
+                if (result['failure'] != 0):
+                    self.logger.error(result)
         except pymysql.IntegrityError as e:
             self.logger.info("DUPLICATE ENTRY");
             self.logger.info(str(e))
