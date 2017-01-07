@@ -12,6 +12,7 @@ class NewsSpider(scrapy.Spider):
     password = ''
     db = ''
     api_key = ''
+    cts = {}
 
     def __init__(self, config='', *args, **kwargs):
         super(NewsSpider, self).__init__(*args, **kwargs)
@@ -22,6 +23,11 @@ class NewsSpider(scrapy.Spider):
             self.password = settings['mysql.password']
             self.db = settings['mysql.db']
             self.api_key = settings['fcm.api_key']
+        for ct in self.get_client_crawl_ct():
+            if self.cts.has_key(ct['url_id']):
+                self.cts[ct['url_id']].append(ct['registration_id'])
+            else:
+                self.cts[ct['url_id']] = [ct['registration_id']]
 
     def get_crawl_url(self):
         conn = pymysql.connect( host=self.host,
@@ -102,11 +108,9 @@ class NewsSpider(scrapy.Spider):
             conn.close()
         
         push_service = FCMNotification(api_key=self.api_key)
-        registration_ids = ['cT6TWP-QlzI:APA91bHJlL2MKmVOpoT14egNVh-M2zLLXRNC-lVLmD6EL1p6B8bGMNvwdP7GUDKEhyNI7b3JFAl4GpxhUQnnDuTRsOVjQ2ca3bYrzD6WWlpVo_3ZPdckQTsuRg6GIqqgBY4rLREF31Z5']
-        self.log(self.get_client_crawl_ct())
         while messages_to_be_sent:
             message = messages_to_be_sent.pop()
-            results = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message['title'], message_body=message['body'])
+            results = push_service.notify_multiple_devices(registration_ids=self.cts[message['url_id']], message_title=message['title'], message_body=message['body'])
             for result in results:
                 if (result['failure'] != 0):
                     self.logger.error(result)
