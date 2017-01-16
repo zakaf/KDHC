@@ -1,0 +1,7 @@
+{
+    "mysql.host" : "127.0.0.1",
+    "mysql.user" : "kdhcadmin",
+    "mysql.password" : "ANFcjs9009!",
+    "mysql.db" : "kdhc",
+    "fcm.api_key" : "AAAAatjZjrE:APA91bFRH8NWFuJYxPwRL0AdYdwSfygFtAFgCCmX_UrCrbF3hzwOK16RNf5x0jKCLPF4irFdIfQP76eRuoL8Kd5j1J5l15jkvGLgpBDh86V_Ixy4qYvI6O9mxn6J8uhXAALCDQICOERZCJjzRzXefXf5qijVLxUX5Q"
+}
