@@ -42,6 +42,7 @@ public class ApplicationController extends Application {
         synchronized (ApplicationController.class) {
             if (networkService == null) {
                 baseUrl = String.format("http://%s:%d", ip, port);
+                //Gson 은 받아온 json 파일을 파싱시켜 사용을 용이하게 하는 라이브러리
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
                 GsonConverterFactory factory = GsonConverterFactory.create(gson);
                 Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(factory).build();
