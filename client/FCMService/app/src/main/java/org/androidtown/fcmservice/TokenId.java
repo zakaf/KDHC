@@ -5,9 +5,26 @@ package org.androidtown.fcmservice;
  */
 
 public class TokenId {
-   public String token;
+   private String token;
+   private String name;
 
-   public TokenId(String tokenid){
+   public String getToken() {
+      return token;
+   }
+
+   public void setToken(String token) {
+      this.token = token;
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public TokenId(String token){
       this.token =token;
    }
 }

@@ -12,6 +12,8 @@ import retrofit.Retrofit;
 
 /**
  * Created by Hosan on 2017-01-06.
+ * 네트워킹을 처리하는 Application 객체
+ * AndroidManifest.xml 에 등록
  */
 
 public class ApplicationController extends Application {
