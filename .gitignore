@@ -1,2 +1,8 @@
 *.pyc
 kdhc.settings.json
+hosan.settings.json
+venv/
+dbs/
+logs/
+.env
+*.swp
