@@ -6,3 +6,4 @@ dbs/
 logs/
 .env
 *.swp
+config.js
