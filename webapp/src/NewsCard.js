@@ -11,7 +11,7 @@ export class NewsCard extends React.Component {
                 <Card.Group itemsPerRow="4" stackable>
                     {
                         this.props.news.map(function (row) {
-                            return (<Card href={row.news_url}>
+                            return (<Card href={row.news_url} key={row.news_url}>
                                 <Card.Content header={row.title}/>
                                 <Card.Meta content={row.author}/>
                                 <Card.Content description={row.description}/>

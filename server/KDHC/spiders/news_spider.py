@@ -124,6 +124,7 @@ class NewsSpider(scrapy.Spider):
         finally:
             conn.close()
 
+"""
         push_service = FCMNotification(api_key=self.api_key)
         while messages_to_be_sent:
             message = messages_to_be_sent.pop()
@@ -134,3 +135,4 @@ class NewsSpider(scrapy.Spider):
             for result in results:
                 if result['failure'] != 0:
                     self.logger.error(result)
+"""

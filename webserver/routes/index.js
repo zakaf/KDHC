@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const morgan = require('morgan');
 
 const env = process.env.NODE_ENV || 'development';
-const config = require('../config')[env];
+const config = require('../dongkeun.config')[env];
 
 const connection = mysql.createConnection({
     host: config.database.host,

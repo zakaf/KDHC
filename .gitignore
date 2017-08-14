@@ -6,4 +6,4 @@ dbs/
 logs/
 .env
 *.swp
-config.js
+dongkeun.config.js

@@ -34,9 +34,7 @@ class App extends React.Component {
                     <h2>뉴스보기</h2>
                 </div>
                 <Container text-align="center" className="Container">
-                    <p className="App-intro">
-                        <NewsCard news={this.state.news}/>
-                    </p>
+                    <NewsCard news={this.state.news}/>
                 </Container>
             </div>
         );
