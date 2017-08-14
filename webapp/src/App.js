@@ -1,22 +1,46 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 import NewsCard from './NewsCard';
+import {Container} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
-import SmalldotsFetch from 'smalldots/lib/Fetch';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <h2>뉴스보기</h2>
-        </div>
-        <p className="App-intro">
-            <NewsCard />
-        </p>
-      </div>
-    );
-  }
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            news: null
+        };
+        this.loadData = this.loadData.bind(this);
+    }
+
+    loadData() {
+        fetch("http://localhost:3001/news")
+            .then(response => response.json())
+            .then(json => {
+                this.setState({
+                    news: json
+                })
+            })
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
+    render() {
+        return (
+            <div className="App">
+                <div className="App-header">
+                    <h2>뉴스보기</h2>
+                </div>
+                <Container text-align="center" className="Container">
+                    <p className="App-intro">
+                        <NewsCard news={this.state.news}/>
+                    </p>
+                </Container>
+            </div>
+        );
+    }
 }
 
 export default App;
