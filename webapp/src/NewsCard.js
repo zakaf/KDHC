@@ -1,16 +1,40 @@
 import React from 'react'
 import {Card, Icon} from 'semantic-ui-react'
+import 'semantic-ui-css/semantic.min.css';
 
 export class NewsCard extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            news: null
+        };
+        this.loadData = this.loadData.bind(this);
+    }
+
+    loadData() {
+        fetch("http://localhost:3001/news")
+            .then(response => response.json())
+            .then(json => {
+                this.setState({
+                    news: json
+                })
+            })
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
     render() {
-        if (!this.props.news) {
+        if (!this.state.news) {
             return null;
         }
+
         return (
             <div>
                 <Card.Group itemsPerRow="4" stackable>
                     {
-                        this.props.news.map(function (row) {
+                        this.state.news.map(function (row) {
                             return (<Card href={row.news_url} key={row.news_url}>
                                 <Card.Content header={row.title}/>
                                 <Card.Meta content={row.author}/>
