@@ -7,3 +7,4 @@ logs/
 .env
 *.swp
 dongkeun.config.js
+.idea/
