@@ -1,7 +1,10 @@
 import React from 'react';
-import {Card, Divider, Feed, Icon} from 'semantic-ui-react';
+import {Card, Divider, Feed} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
+import './Card.css';
+import './Feed.css';
+import './Divider.css';
 
 export class KeywordCard extends React.Component {
     constructor(props) {
@@ -13,7 +16,9 @@ export class KeywordCard extends React.Component {
     }
 
     loadData() {
-        fetch("http://localhost:3001/keywords")
+        let config = require('./config/config.js');
+
+        fetch(config.config.serverUrl + "/keywords")
             .then(response => response.json())
             .then(json => {
                 this.setState({

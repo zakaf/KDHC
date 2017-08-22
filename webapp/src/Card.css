@@ -1,0 +1,27 @@
+/* Card Content */
+.ui.card > .content, .ui.cards > .card > .content {
+    padding-top: 1em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    padding-bottom: 0.5em;
+    font-size: 0.9em;
+}
+
+/* Card Extra */
+.ui.card > .extra, .ui.cards > .card > .extra {
+    padding-top: 0.5em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+/* Card */
+.ui.cards > .card {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+/* Crd Header */
+.ui.card > .content > .header:not(.ui), .ui.cards > .card > .content > .header:not(.ui) {
+    font-size: 1.1em;
+}

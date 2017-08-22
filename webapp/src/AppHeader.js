@@ -18,7 +18,7 @@ class AppHeader extends React.Component {
                 inverted
                 textAlign='center'
                 vertical
-                padded='very'
+                padded
             >
                 <Container>
                     <Menu inverted pointing secondary size='large'>

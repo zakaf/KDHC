@@ -1,0 +1,26 @@
+/* Feed */
+.ui.feed {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Feed Content */
+.ui.feed > .event > .label + .content {
+    margin-left: 1em;
+}
+
+/* Feed Date */
+.ui.feed > .event > .content .date {
+    font-size: 0.8em;
+}
+
+/* Feed Meta */
+.ui.feed > .event > .content .meta {
+    margin-top: 0;
+    font-size: 0.7em;
+}
+
+/* Feed Label */
+.ui.feed > .event > .label + .content {
+    margin-bottom: 0;
+}
