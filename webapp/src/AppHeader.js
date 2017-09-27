@@ -1,17 +1,9 @@
 import React from 'react';
 import {Button, Container, Header, Icon, Menu, Segment} from 'semantic-ui-react'
+import {NavLink} from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 
 class AppHeader extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleItemClick = this.handleItemClick.bind(this);
-    }
-
-    handleItemClick(e, {name}) {
-        this.props.moveToPage(name);
-    }
-
     render() {
         return (
             <Segment
@@ -22,11 +14,10 @@ class AppHeader extends React.Component {
             >
                 <Container>
                     <Menu inverted pointing secondary size='large'>
-                        <Menu.Item name="news" active={this.props.page === 'news'}
-                                   onClick={this.handleItemClick}>News</Menu.Item>
-                        <Menu.Item name="keyword" active={this.props.page === 'keyword'} onClick={this.handleItemClick}>Keyword</Menu.Item>
+                        <Menu.Item name="news" as={NavLink} to='/news'>News</Menu.Item>
+                        <Menu.Item name="keyword" as={NavLink} to='/keyword'>Keyword</Menu.Item>
                         <Menu.Item position='right'>
-                            <Button as='a' inverted>Log in</Button>
+                            <Button as={NavLink} inverted to='/login'>Log in</Button>
                             <Button as='a' inverted style={{marginLeft: '0.5em'}}>Sign Up</Button>
                         </Menu.Item>
                     </Menu>

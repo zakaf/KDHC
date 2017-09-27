@@ -41,7 +41,7 @@ export class KeywordCard extends React.Component {
                 <Card.Group itemsPerRow="3" stackable>
                     {
                         this.state.keyword.map(function (row) {
-                            return (<Card key={row.keyword} header={row.keyword}>
+                            return (<Card key={row.keyword}>
                                 <Card.Content>
                                     <Card.Header>
                                         {row.keyword}
