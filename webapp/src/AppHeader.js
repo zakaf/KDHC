@@ -4,7 +4,17 @@ import {NavLink} from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 
 class AppHeader extends React.Component {
+    login() {
+        this.props.auth.login();
+    }
+
+    logout() {
+        this.props.auth.logout();
+    }
+
     render() {
+        const {isAuthenticated} = this.props.auth;
+
         return (
             <Segment
                 inverted
@@ -17,8 +27,26 @@ class AppHeader extends React.Component {
                         <Menu.Item name="news" as={NavLink} to='/news'>News</Menu.Item>
                         <Menu.Item name="keyword" as={NavLink} to='/keyword'>Keyword</Menu.Item>
                         <Menu.Item position='right'>
-                            <Button as={NavLink} inverted to='/login'>Log in</Button>
-                            <Button as='a' inverted style={{marginLeft: '0.5em'}}>Sign Up</Button>
+                            {
+                                !isAuthenticated() && (
+                                    <Button
+                                        as='a' inverted
+                                        onClick={this.login.bind(this)}
+                                    >
+                                        Log In
+                                    </Button>
+                                )
+                            }
+                            {
+                                isAuthenticated() && (
+                                    <Button
+                                        as='a' inverted
+                                        onClick={this.logout.bind(this)}
+                                    >
+                                        Log Out
+                                    </Button>
+                                )
+                            }
                         </Menu.Item>
                     </Menu>
                 </Container>
