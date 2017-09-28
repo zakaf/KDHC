@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, Icon} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
-import './Card.css';
+import './css/Card.css';
 
 export class NewsCard extends React.Component {
     constructor(props) {

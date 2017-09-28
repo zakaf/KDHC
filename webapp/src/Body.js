@@ -4,7 +4,7 @@ import {Container} from 'semantic-ui-react'
 import NewsCard from './NewsCard';
 import KeywordCard from "./KeywordCard";
 import Callback from "./Callback"
-import './Body.css';
+import './css/Body.css';
 
 class Body extends React.Component {
     render() {

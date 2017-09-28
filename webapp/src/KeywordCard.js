@@ -2,9 +2,9 @@ import React from 'react';
 import {Card, Divider, Feed} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
-import './Card.css';
-import './Feed.css';
-import './Divider.css';
+import './css/Card.css';
+import './css/Feed.css';
+import './css/Divider.css';
 
 export class KeywordCard extends React.Component {
     constructor(props) {
