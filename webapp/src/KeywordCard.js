@@ -18,7 +18,7 @@ export class KeywordCard extends React.Component {
     loadData() {
         let config = require('./config/config.js');
 
-        fetch(config.config.serverUrl + "/keywords")
+        fetch(config.config.serverUrl + "/keywords/" + this.props.sub)
             .then(response => response.json())
             .then(json => {
                 this.setState({

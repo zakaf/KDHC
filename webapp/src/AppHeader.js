@@ -39,12 +39,20 @@ class AppHeader extends React.Component {
                             }
                             {
                                 isAuthenticated() && (
-                                    <Button
-                                        as='a' inverted
-                                        onClick={this.logout.bind(this)}
-                                    >
-                                        Log Out
-                                    </Button>
+                                    <div>
+                                        <Button
+                                            as='a' inverted
+                                            onClick={this.logout.bind(this)}
+                                        >
+                                            Manage Keyword
+                                        </Button>
+                                        <Button
+                                            as='a' inverted
+                                            onClick={this.logout.bind(this)}
+                                        >
+                                            Log Out
+                                        </Button>
+                                    </div>
                                 )
                             }
                         </Menu.Item>

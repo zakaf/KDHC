@@ -15,7 +15,7 @@ export class NewsCard extends React.Component {
     loadData() {
         let config = require('./config/config.js');
 
-        fetch(config.config.serverUrl + "/news")
+        fetch(config.config.serverUrl + "/news/" + this.props.sub)
             .then(response => response.json())
             .then(json => {
                 this.setState({

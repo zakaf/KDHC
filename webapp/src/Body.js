@@ -14,14 +14,20 @@ class Body extends React.Component {
             }
         };
 
+        const openIdSub = this.props.auth.isAuthenticated() ? this.props.auth.getOpenIdSub() : "";
+
         return (
             <Container textAlign="center" className="Body">
                 <Switch>
                     <Route exact path='/' render={() => {
                         return <Redirect to='/news'/>
                     }}/>
-                    <Route path='/news' component={NewsCard}/>
-                    <Route path='/keyword' component={KeywordCard}/>
+                    <Route path='/news' render={(props) => (
+                        <NewsCard sub={openIdSub}/>
+                    )}/>
+                    <Route path='/keyword' render={(props) => (
+                        <KeywordCard sub={openIdSub}/>
+                    )}/>
                     <Route path="/callback" render={(props) => {
                         handleAuthentication(props);
                         return <Callback {...props} />

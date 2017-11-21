@@ -19,6 +19,16 @@ const app = express();
 app.use(cors());
 app.use(morgan('dev'));
 
+//returns top 20 news of a specific user in the order of published date
+app.get('/news/:id', function (req, res) {
+    pool.query('SELECT title, description, author, news_url, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id inner join client_crawl_ct on crawl_url.url_id = client_crawl_ct.url_id where client_crawl_ct.client_id = ? order by pub_date desc limit 20', [req.params.id], function (err, rows) {
+        if (err)
+            throw err;
+
+        res.send(rows)
+    });
+});
+
 //returns top 20 news in the order of published date
 app.get('/news', function (req, res) {
     pool.query('SELECT title, description, author, news_url, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id order by pub_date desc limit 20', function (err, rows) {
@@ -27,6 +37,24 @@ app.get('/news', function (req, res) {
 
         res.send(rows)
     });
+});
+
+//returns top 20 news of a specific user in the order of published date
+app.get('/keywords/:id', function (req, res) {
+    pool.query('SELECT client_crawl_ct.url_id, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id inner join client_crawl_ct on crawl_url.url_id = client_crawl_ct.url_id where client_crawl_ct.client_id = ? group by client_crawl_ct.url_id, keyword order by max(pub_date) desc limit 20', [req.params.id], function (err, rows) {
+        if (err)
+            throw err;
+
+        let pending = rows.length;
+
+        for (let i = 0; i < rows.length; i++) {
+            pool.query('SELECT title, description, news_url, pub_date, author FROM news where crawled_url_id = ? order by pub_date desc limit 5', [rows[i].url_id], function (err, newsRows) {
+                rows[i].news = newsRows;
+                if (0 === --pending)
+                    res.send(rows);
+            });
+        }
+    })
 });
 
 //returns top 20 news in the order of published date

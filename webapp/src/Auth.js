@@ -1,6 +1,7 @@
 import auth0 from 'auth0-js';
 import config from './config/config'
 import history from './History';
+import decode from 'jwt-decode';
 
 export default class Auth {
     auth0 = new auth0.WebAuth({
@@ -17,21 +18,10 @@ export default class Auth {
         this.logout = this.logout.bind(this);
         this.handleAuthentication = this.handleAuthentication.bind(this);
         this.isAuthenticated = this.isAuthenticated.bind(this);
+        this.getOpenIdSub = this.getOpenIdSub.bind(this);
     }
 
-    handleAuthentication() {
-        this.auth0.parseHash((err, authResult) => {
-            if (authResult && authResult.accessToken && authResult.idToken) {
-                this.setSession(authResult);
-                history.replace('/');
-            } else if (err) {
-                history.replace('/');
-                console.log(err);
-            }
-        });
-    }
-
-    setSession(authResult) {
+    static setSession(authResult) {
         // Set the time that the access token will expire at
         let expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
         localStorage.setItem('access_token', authResult.accessToken);
@@ -39,6 +29,18 @@ export default class Auth {
         localStorage.setItem('expires_at', expiresAt);
         // navigate to the home route
         history.replace('/');
+    }
+
+    handleAuthentication() {
+        this.auth0.parseHash((err, authResult) => {
+            if (authResult && authResult.accessToken && authResult.idToken) {
+                Auth.setSession(authResult);
+                history.replace('/');
+            } else if (err) {
+                history.replace('/');
+                console.log(err);
+            }
+        });
     }
 
     login() {
@@ -59,5 +61,22 @@ export default class Auth {
         // access token's expiry time
         let expiresAt = JSON.parse(localStorage.getItem('expires_at'));
         return new Date().getTime() < expiresAt;
+    }
+
+    getOpenIdSub() {
+        const decoded = decode(this.getIdToken());
+
+        if (decoded.sub === undefined || decoded.sub === "")
+            throw new Error('No sub found');
+
+        return decoded.sub;
+    }
+
+    getIdToken() {
+        const idToken = localStorage.getItem('id_token');
+        if (!idToken) {
+            throw new Error('No id token found');
+        }
+        return idToken;
     }
 }
