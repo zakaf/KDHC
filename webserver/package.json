@@ -9,8 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.15.4",
+    "express-jwt": "^5.3.0",
+    "jwks-rsa": "^1.2.1",
     "morgan": "^1.8.2",
     "mysql": "^2.14.1"
   }

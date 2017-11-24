@@ -19,6 +19,8 @@ export default class Auth {
         this.handleAuthentication = this.handleAuthentication.bind(this);
         this.isAuthenticated = this.isAuthenticated.bind(this);
         this.getOpenIdSub = this.getOpenIdSub.bind(this);
+        this.getAccessToken = this.getAccessToken.bind(this);
+        this.getIdToken = this.getIdToken.bind(this);
     }
 
     static setSession(authResult) {
@@ -78,5 +80,13 @@ export default class Auth {
             throw new Error('No id token found');
         }
         return idToken;
+    }
+
+    getAccessToken() {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            throw new Error('No access token found');
+        }
+        return accessToken;
     }
 }
