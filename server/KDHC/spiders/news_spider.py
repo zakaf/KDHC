@@ -22,15 +22,6 @@ class NewsSpider(scrapy.Spider):
 
         self.cts = {}
 
-        # retrieve map of url_id and list of registration ids
-        for connection in self.get_client_crawl_ct():
-            if self.cts.has_key(connection['url_id']):
-                self.cts[connection['url_id']].append(
-                    connection['registration_id'])
-            else:
-                self.cts[connection['url_id']] = [
-                    connection['registration_id']]
-
     def get_crawl_url(self):
         """ return list of urls to crawl """
 
@@ -58,10 +49,9 @@ class NewsSpider(scrapy.Spider):
         try:
             with conn.cursor() as cursor:
                 # Read a single record
-                sql = "SELECT `url_id`, `registration_id` "
-                sql += "FROM `client_crawl_ct`, `client`"
-                sql += "WHERE `client_crawl_ct`.`client_id` = `client`.`client_id`"
-                sql += "AND `url_id` IN (SELECT `url_id` FROM `crawl_url`)"
+                sql = "SELECT `url_id`"
+                sql += "FROM `client_crawl_ct`"
+                sql += "WHERE `url_id` IN (SELECT `url_id` FROM `crawl_url`)"
                 sql += "ORDER BY `url_id` ASC"
                 cursor.execute(sql)
                 result = cursor.fetchall()
