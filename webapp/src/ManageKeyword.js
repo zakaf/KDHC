@@ -1,16 +1,10 @@
 import React from 'react';
-import {Button} from 'semantic-ui-react';
+import {Form} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
 
 export class ManageKeyword extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            keywords: null
-        };
-        this.loadData = this.loadData.bind(this);
-    }
+    handleChange = (e, {name, value}) => this.setState({[name]: value});
 
     loadData() {
         let config = require('./config/config.js');
@@ -25,11 +19,26 @@ export class ManageKeyword extends React.Component {
             })
     }
 
-    addKeyword() {
-        let config = require('./config/config.js');
+    handleSubmit = () => {
+        this.addKeyword(this.state.newKeyword, this.state.newUrl);
+    };
 
-        let keyword = 'keyword';
-        let url = 'url';
+    constructor(props) {
+        super(props);
+        this.state = {
+            keywords: null,
+            newKeyword: '',
+            newUrl: ''
+        };
+        this.loadData = this.loadData.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
+    addKeyword(keyword, url) {
+        let config = require('./config/config.js');
 
         fetch(config.config.serverUrl + "/addKeyword",
             {
@@ -45,23 +54,18 @@ export class ManageKeyword extends React.Component {
             })
     }
 
-    componentDidMount() {
-        this.loadData();
-    }
-
     render() {
-        if (!this.state.keywords) {
-            return null;
-        }
-
         return (
             <div>
-                <Button
-                    as='a'
-                    onClick={this.addKeyword.bind(this)}
-                >
-                    Add Keyword
-                </Button>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Group>
+                        <Form.Input name='newKeyword' label='Keyword' placeholder='Keyword' width={4}
+                                    onChange={this.handleChange}/>
+                        <Form.Input name='newUrl' label='Url' placeholder='Url' width={12}
+                                    onChange={this.handleChange}/>
+                    </Form.Group>
+                    <Form.Button content="Add Keyword"/>
+                </Form>
             </div>
         )
     }
