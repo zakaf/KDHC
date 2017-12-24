@@ -123,6 +123,15 @@ app.post('/addKeyword', checkJwt, function (req, res) {
     });
 });
 
+//list keywords according to users
+app.get('/listKeyword/:id', checkJwt, function (req, res) {
+    pool.query('SELECT crawl_url.keyword, crawl_url.mod_dtime FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where client_crawl_ct.client_id = ? order by mod_dtime desc', [req.params.id], function (err, rows) {
+        if (err)
+            throw err;
+        res.send(rows);
+    })
+});
+
 app.listen(config.server.port, function () {
     console.log('webserver listening on port ' + config.server.port)
 });
