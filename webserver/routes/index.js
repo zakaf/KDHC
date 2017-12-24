@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 const bodyParser = require('body-parser');
+const urlencode = require('urlencode');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../dongkeun.config')[env];
@@ -99,8 +100,14 @@ app.get('/keywords', function (req, res) {
 });
 
 //add keyword to the database with id from id_token
+//check if keyword exists or not
 app.post('/addKeyword', checkJwt, function (req, res) {
-    pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [req.body.url, req.body.keyword], function (err, crawlUrlResult) {
+    let url = req.body.searchWord;
+
+    if (req.body.type === 'NAVER')
+        url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlencode(req.body.searchWord);
+
+    pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [url, req.body.keyword], function (err, crawlUrlResult) {
         if (err)
             throw err;
 
@@ -111,7 +118,7 @@ app.post('/addKeyword', checkJwt, function (req, res) {
 
         res.send({
             keyword: req.body.keyword,
-            url: req.body.url
+            searchWord: req.body.searchWord
         });
     });
 });

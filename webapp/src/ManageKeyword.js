@@ -1,16 +1,10 @@
 import React from 'react';
-import {Button} from 'semantic-ui-react';
+import {Form, Label} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
 
 export class ManageKeyword extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            keywords: null
-        };
-        this.loadData = this.loadData.bind(this);
-    }
+    handleChange = (e, {name, value}) => this.setState({[name]: value});
 
     loadData() {
         let config = require('./config/config.js');
@@ -25,19 +19,35 @@ export class ManageKeyword extends React.Component {
             })
     }
 
-    addKeyword() {
-        let config = require('./config/config.js');
+    handleSubmit = () => {
+        this.addKeyword(this.state.newKeyword, this.state.newSearchWord);
+    };
 
-        let keyword = 'keyword';
-        let url = 'url';
+    constructor(props) {
+        super(props);
+        this.state = {
+            keywords: null,
+            newKeyword: '',
+            newSearchWord: ''
+        };
+        this.loadData = this.loadData.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
+    addKeyword(keyword, searchWord) {
+        let config = require('./config/config.js');
 
         fetch(config.config.serverUrl + "/addKeyword",
             {
                 method: 'post',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
                 body: JSON.stringify({
+                    type: 'NAVER',
                     keyword: keyword,
-                    url: url
+                    searchWord: searchWord,
                 })
             })
             .then(response => response.json())
@@ -45,23 +55,19 @@ export class ManageKeyword extends React.Component {
             })
     }
 
-    componentDidMount() {
-        this.loadData();
-    }
-
     render() {
-        if (!this.state.keywords) {
-            return null;
-        }
-
         return (
             <div>
-                <Button
-                    as='a'
-                    onClick={this.addKeyword.bind(this)}
-                >
-                    Add Keyword
-                </Button>
+                <Label as='a' tag size='large' color='green'>네이버</Label>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Group>
+                        <Form.Input name='newKeyword' label='키워드' placeholder='키워드' width={4}
+                                    onChange={this.handleChange}/>
+                        <Form.Input name='newSearchWord' label='검색어' placeholder='검색어' width={12}
+                                    onChange={this.handleChange}/>
+                    </Form.Group>
+                    <Form.Button content="키워드 추가"/>
+                </Form>
             </div>
         )
     }
