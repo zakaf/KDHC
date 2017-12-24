@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form} from 'semantic-ui-react';
+import {Form, Label} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
 
@@ -20,7 +20,7 @@ export class ManageKeyword extends React.Component {
     }
 
     handleSubmit = () => {
-        this.addKeyword(this.state.newKeyword, this.state.newUrl);
+        this.addKeyword(this.state.newKeyword, this.state.newSearchWord);
     };
 
     constructor(props) {
@@ -28,7 +28,7 @@ export class ManageKeyword extends React.Component {
         this.state = {
             keywords: null,
             newKeyword: '',
-            newUrl: ''
+            newSearchWord: ''
         };
         this.loadData = this.loadData.bind(this);
     }
@@ -37,7 +37,7 @@ export class ManageKeyword extends React.Component {
         this.loadData();
     }
 
-    addKeyword(keyword, url) {
+    addKeyword(keyword, searchWord) {
         let config = require('./config/config.js');
 
         fetch(config.config.serverUrl + "/addKeyword",
@@ -45,8 +45,9 @@ export class ManageKeyword extends React.Component {
                 method: 'post',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
                 body: JSON.stringify({
+                    type: 'NAVER',
                     keyword: keyword,
-                    url: url
+                    searchWord: searchWord,
                 })
             })
             .then(response => response.json())
@@ -57,14 +58,15 @@ export class ManageKeyword extends React.Component {
     render() {
         return (
             <div>
+                <Label as='a' tag size='large' color='green'>네이버</Label>
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group>
-                        <Form.Input name='newKeyword' label='Keyword' placeholder='Keyword' width={4}
+                        <Form.Input name='newKeyword' label='키워드' placeholder='키워드' width={4}
                                     onChange={this.handleChange}/>
-                        <Form.Input name='newUrl' label='Url' placeholder='Url' width={12}
+                        <Form.Input name='newSearchWord' label='검색어' placeholder='검색어' width={12}
                                     onChange={this.handleChange}/>
                     </Form.Group>
-                    <Form.Button content="Add Keyword"/>
+                    <Form.Button content="키워드 추가"/>
                 </Form>
             </div>
         )
