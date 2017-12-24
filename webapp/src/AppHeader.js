@@ -41,8 +41,8 @@ class AppHeader extends React.Component {
                                 isAuthenticated() && (
                                     <div>
                                         <Button
-                                            as='a' inverted
-                                            onClick={this.logout.bind(this)}
+                                            as={NavLink} inverted
+                                            to='/manageKeyword'
                                         >
                                             Manage Keyword
                                         </Button>
