@@ -1,4 +1,5 @@
 import React from 'react';
+import DocumentTitle from 'react-document-title'
 import './css/App.css';
 import AppHeader from './AppHeader';
 import Body from './Body'
@@ -11,6 +12,7 @@ class App extends React.Component {
 
         return (
             <div>
+                <DocumentTitle title='KDHC'/>
                 <AppHeader auth={auth}/>
                 <Body auth={auth}/>
             </div>
