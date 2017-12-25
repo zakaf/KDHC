@@ -21,7 +21,7 @@ const pool = mysql.createPool({
 const app = express();
 
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true

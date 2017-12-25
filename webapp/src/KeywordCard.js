@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Divider, Feed} from 'semantic-ui-react';
+import {Card, Divider, Feed, Segment} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
@@ -10,7 +10,9 @@ export class KeywordCard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            keyword: null
+            keyword: null,
+            intervalId: null,
+            isFetching: null
         };
         this.loadData = this.loadData.bind(this);
     }
@@ -18,18 +20,33 @@ export class KeywordCard extends React.Component {
     loadData() {
         let config = require('./config/config.js');
 
+        this.setState({isFetching: true});
+
         fetch(config.config.serverUrl + "/keywords/" + this.props.sub,
             {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
             .then(response => response.json())
             .then(json => {
                 this.setState({
-                    keyword: json
+                    keyword: json,
+                    isFetching: null
                 })
             })
     }
 
     componentDidMount() {
         this.loadData();
+
+        let config = require('./config/config.js');
+
+        var intervalId = setInterval(this.loadData, config.config.refreshInterval);
+
+        /* store intervalId in the state so it can be accessed later:*/
+        this.setState({intervalId: intervalId});
+    }
+
+    componentWillUnmount() {
+        /* use intervalId from the state to clear the interval*/
+        clearInterval(this.state.intervalId);
     }
 
     render() {
@@ -38,7 +55,7 @@ export class KeywordCard extends React.Component {
         }
 
         return (
-            <div>
+            <Segment basic loading={this.state.isFetching}>
                 <Card.Group itemsPerRow="3" stackable>
                     {
                         this.state.keyword.map(function (row) {
@@ -76,7 +93,7 @@ export class KeywordCard extends React.Component {
                         })
                     }
                 </Card.Group>
-            </div>
+            </Segment>
         )
     }
 }

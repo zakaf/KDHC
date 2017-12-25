@@ -4,6 +4,7 @@ const config = {
     "authUrl": "dongkeunlee.auth0.com",
     "redirectUrl": "http://localhost:3000/callback",
     "audience": "https://dongkeunlee.auth0.com/userinfo",
+    "refreshInterval": 5000,
 };
 
 module.exports = {
