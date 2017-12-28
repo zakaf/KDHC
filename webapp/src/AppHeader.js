@@ -39,20 +39,30 @@ class AppHeader extends React.Component {
                             }
                             {
                                 isAuthenticated() && (
-                                    <div>
+                                    <Button.Group>
                                         <Button
                                             as={NavLink} inverted
                                             to='/manageKeyword'
+                                            animated='fade'
+                                            size='large'
                                         >
-                                            Manage Keyword
+                                            <Button.Content hidden>Manage</Button.Content>
+                                            <Button.Content visible>
+                                                <Icon name='settings'/>
+                                            </Button.Content>
                                         </Button>
                                         <Button
                                             as='a' inverted
                                             onClick={this.logout.bind(this)}
+                                            animated='fade'
+                                            size='large'
                                         >
-                                            Log Out
+                                            <Button.Content hidden>Log out</Button.Content>
+                                            <Button.Content visible>
+                                                <Icon name='log out'/>
+                                            </Button.Content>
                                         </Button>
-                                    </div>
+                                    </Button.Group>
                                 )
                             }
                         </Menu.Item>
