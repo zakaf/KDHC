@@ -32,8 +32,13 @@ class AppHeader extends React.Component {
                                     <Button
                                         as='a' inverted
                                         onClick={this.login.bind(this)}
+                                        animated='fade'
+                                        size='medium'
                                     >
-                                        Log In
+                                        <Button.Content hidden>Sign In</Button.Content>
+                                        <Button.Content visible>
+                                            <Icon name='sign in'/>
+                                        </Button.Content>
                                     </Button>
                                 )
                             }
@@ -44,7 +49,7 @@ class AppHeader extends React.Component {
                                             as={NavLink} inverted
                                             to='/manageKeyword'
                                             animated='fade'
-                                            size='large'
+                                            size='medium'
                                         >
                                             <Button.Content hidden>Manage</Button.Content>
                                             <Button.Content visible>
@@ -55,11 +60,11 @@ class AppHeader extends React.Component {
                                             as='a' inverted
                                             onClick={this.logout.bind(this)}
                                             animated='fade'
-                                            size='large'
+                                            size='medium'
                                         >
-                                            <Button.Content hidden>Log out</Button.Content>
+                                            <Button.Content hidden>Sign Out</Button.Content>
                                             <Button.Content visible>
-                                                <Icon name='log out'/>
+                                                <Icon name='sign out'/>
                                             </Button.Content>
                                         </Button>
                                     </Button.Group>
