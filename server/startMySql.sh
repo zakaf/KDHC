@@ -2,4 +2,4 @@
 
 #set password in ~/.my.cnf file
 
-mysql -h nasoheel.cr4r99blaszb.us-west-2.rds.amazonaws.com -u nasoheel FCMService
+mysql -h kdhc.civdal6dzkrp.ap-northeast-2.rds.amazonaws.com -u kdhcadmin kdhc
