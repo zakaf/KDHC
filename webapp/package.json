@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "auth0-js": "^9.0.0",
+    "auth0-js": "^9.0.1",
     "jwt-decode": "^2.2.0",
     "react": "^15.6.2",
     "react-document-title": "^2.0.3",
