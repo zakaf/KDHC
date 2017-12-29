@@ -2,9 +2,6 @@ import React from 'react';
 import {Header, List} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
-import './css/Card.css';
-import './css/Feed.css';
-import './css/Divider.css';
 
 export class KeywordList extends React.Component {
     constructor(props) {
