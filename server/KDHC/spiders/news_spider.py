@@ -3,7 +3,6 @@ import json
 from datetime import datetime
 import pymysql
 import scrapy
-from pyfcm import FCMNotification
 from ..dbconn import DBConn
 
 class NewsSpider(scrapy.Spider):
@@ -29,7 +28,7 @@ class NewsSpider(scrapy.Spider):
         try:
             with conn.cursor() as cursor:
                 # Read a single record
-                sql = "SELECT `url_id`, `url`, `keyword`"
+                sql = "SELECT distinct `url`"
                 sql += "FROM `crawl_url` "
                 sql += "WHERE `url_id` IN (SELECT `url_id` FROM `client_crawl_ct`)"
                 cursor.execute(sql)
@@ -48,6 +47,65 @@ class NewsSpider(scrapy.Spider):
                 url=url['url'],
                 callback=self.parse)
 
+    def insert_news(self, news_url, title, description, pub_date, author, category, crawl_url):
+        """ insert news """
+
+        conn = self.dbconn.get_conn()
+
+        try:
+            with conn.cursor() as cursor:
+                sql = "INSERT INTO `news`"
+                sql += "(`news_url`, `title`, `description`, `pub_date`, `author`, `category`) "
+                sql += "VALUES (%s, %s, %s, %s, %s, %s)"
+                cursor.execute(
+                    sql, 
+                    (
+                        news_url,
+                        title,
+                        description,
+                        pub_date,
+                        author,
+                        category
+                    )
+                )
+                conn.commit()
+
+        except pymysql.IntegrityError as ex:
+            self.logger.info("Duplicate news : " + str(ex))
+        except pymysql.Error as ex:
+            self.logger.error(str(ex))
+            return 1
+        finally:
+            conn.close()
+        
+        return self.insert_crawl_ct(crawl_url, news_url)
+        
+
+    def insert_crawl_ct(self, crawl_url, news_url):
+        """ insert news_crawl_ct for correpsonding crawl_url and news_url """
+        
+        conn = self.dbconn.get_conn()
+
+        try:
+            with conn.cursor() as cursor:
+                sql = "INSERT INTO `news_crawl_ct` (`url_id`,`news_url`)"
+                sql += "SELECT `url_id`, %s"
+                sql += " FROM crawl_url WHERE url = %s"
+
+                cursor.execute(sql, (news_url, crawl_url))
+
+                conn.commit()
+        except pymysql.IntegrityError as ex:
+            self.logger.info("Duplicate news_crawl_ct : " + str(ex))
+            return 1
+        except pymysql.Error as ex:
+            self.logger.error(str(ex))
+            return 1
+        finally:
+            conn.close()
+
+        return 0
+
     def parse(self, response):
         """ parse and save news in the database """
 
@@ -57,29 +115,13 @@ class NewsSpider(scrapy.Spider):
         # will be in between old articles
         # so it commits new articles until duplicate article is found
         # When duplicate is found, raise integrity error
-        
-        try:
-            for item in response.xpath('//item'):
-                with conn.cursor() as cursor:
-                    sql = "INSERT INTO `news`"
-                    sql += "(`news_url`, `title`, `description`, `pub_date`, `author`, `category`) "
-                    sql += "VALUES (%s, %s, %s, %s, %s, %s)"
-                    cursor.execute(
-                        sql, (
-                            item.xpath('./link/text()').extract_first(),
-                            item.xpath('./title/text()').extract_first(),
-                            item.xpath('./description/text()').extract_first(),
-                            datetime.strptime(
-                                item.xpath(
-                                    './pubDate/text()').extract_first()[:-6],
-                                '%a, %d %b %Y %H:%M:%S'),
-                            item.xpath('./author/text()').extract_first(),
-                            item.xpath('./category/text()').extract_first(),))
-                    conn.commit()
-        except pymysql.IntegrityError as ex:
-            self.logger.info("DUPLICATE ENTRY")
-            self.logger.info(str(ex))
-        except pymysql.Error as ex:
-            self.logger.error(str(ex))
-        finally:
-            conn.close()
+        for item in response.xpath('//item'):
+            news_url = item.xpath('./link/text()').extract_first()
+            title = item.xpath('./title/text()').extract_first(),
+            description = item.xpath('./description/text()').extract_first()
+            pub_date = datetime.strptime(item.xpath('./pubDate/text()').extract_first()[:-6],'%a, %d %b %Y %H:%M:%S')
+            author = item.xpath('./author/text()').extract_first()
+            category = item.xpath('./category/text()').extract_first()
+
+            if (self.insert_news(news_url, title, description, pub_date, author, category, response.url) != 0):
+                break
