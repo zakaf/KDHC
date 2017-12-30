@@ -111,7 +111,7 @@ app.post('/addKeyword', checkJwt, function (req, res) {
         if (err)
             throw err;
 
-        pool.query('INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)', [crawlUrlResult.insertId, req.user.sub], function (err, clientCrawlCtResult) {
+        pool.query('INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)', [crawlUrlResult.insertId, req.user.sub], function (err) {
             if (err)
                 throw err;
         });
@@ -124,12 +124,47 @@ app.post('/addKeyword', checkJwt, function (req, res) {
 });
 
 //list keywords according to users
-app.get('/listKeyword/:id', checkJwt, function (req, res) {
-    pool.query('SELECT crawl_url.keyword, crawl_url.mod_dtime FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where client_crawl_ct.client_id = ? order by mod_dtime desc', [req.params.id], function (err, rows) {
+app.get('/listKeyword', checkJwt, function (req, res) {
+    pool.query('SELECT crawl_url.keyword, crawl_url.mod_dtime FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where client_crawl_ct.client_id = ? order by mod_dtime desc', [req.user.sub], function (err, rows) {
         if (err)
             throw err;
         res.send(rows);
     })
+});
+
+//delete client_crawl_ct, crawl_url, news, when keyword is deleted
+app.post('/deleteKeyword', checkJwt, function (req, res) {
+    pool.query('SELECT crawl_url.url_id FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where crawl_url.keyword = ? and client_crawl_ct.client_id=?',
+        [req.body.keyword, req.user.sub],
+        function (err, crawlUrlResult) {
+            if (err)
+                throw err;
+
+            if (crawlUrlResult.length !== 1)
+                throw "No keyword found";
+
+            let urlId = crawlUrlResult[0].url_id;
+
+            pool.query('DELETE FROM client_crawl_ct where url_id = ? and client_id = ?', [urlId, req.user.sub], function (err) {
+                if (err)
+                    throw err;
+            });
+
+            pool.query('DELETE FROM crawl_url where url_id = ?', [urlId], function (err) {
+                if (err)
+                    throw err;
+            });
+
+            pool.query('DELETE FROM news where crawled_url_id = ?', [urlId], function (err) {
+                if (err)
+                    throw err;
+            });
+
+            res.send({
+                keyword: req.body.keyword
+            });
+        })
+    ;
 });
 
 app.listen(config.server.port, function () {

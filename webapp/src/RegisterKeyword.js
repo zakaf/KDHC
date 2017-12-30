@@ -64,7 +64,6 @@ export class RegisterKeyword extends React.Component {
                     <Icon name='settings'/>
                     등록할 키워드
                 </Header>
-
                 <Form onSubmit={this.handleSubmit} success={this.state.isMessageSuccess}
                       error={this.state.isMessageError}>
                     <Label as='a' tag size='large' color='green'>네이버</Label>
