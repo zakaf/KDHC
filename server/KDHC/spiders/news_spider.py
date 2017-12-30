@@ -46,8 +46,7 @@ class NewsSpider(scrapy.Spider):
         for url in self.get_crawl_url():
             yield scrapy.Request(
                 url=url['url'],
-                callback=self.parse,
-                meta={'url_id': url['url_id']})
+                callback=self.parse)
 
     def parse(self, response):
         """ parse and save news in the database """
@@ -63,13 +62,11 @@ class NewsSpider(scrapy.Spider):
             for item in response.xpath('//item'):
                 with conn.cursor() as cursor:
                     sql = "INSERT INTO `news`"
-                    sql += "(`news_url`, `crawled_url_id`, `title`, `description`, "
-                    sql += "`pub_date`, `author`, `category`) "
-                    sql += "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    sql += "(`news_url`, `title`, `description`, `pub_date`, `author`, `category`) "
+                    sql += "VALUES (%s, %s, %s, %s, %s, %s)"
                     cursor.execute(
                         sql, (
                             item.xpath('./link/text()').extract_first(),
-                            response.meta['url_id'],
                             item.xpath('./title/text()').extract_first(),
                             item.xpath('./description/text()').extract_first(),
                             datetime.strptime(
