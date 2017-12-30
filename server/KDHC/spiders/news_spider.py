@@ -18,41 +18,20 @@ class NewsSpider(scrapy.Spider):
         # Loads up configurations from a config file
         with open(config, 'r') as cfg:
             settings = json.load(cfg)
-            self.api_key = settings['fcm.api_key']
 
         self.cts = {}
 
     def get_crawl_url(self):
-        """ return list of urls to crawl """
+        """ return list of urls to crawl (only the ones in client_crawl_ct) """
 
         conn = self.dbconn.get_conn()
 
         try:
             with conn.cursor() as cursor:
                 # Read a single record
-                sql = "SELECT `url_id`, `url`, `keyword`, `mod_dtime` "
+                sql = "SELECT `url_id`, `url`, `keyword`"
                 sql += "FROM `crawl_url` "
                 sql += "WHERE `url_id` IN (SELECT `url_id` FROM `client_crawl_ct`)"
-                cursor.execute(sql)
-                result = cursor.fetchall()
-        except pymysql.Error as ex:
-            self.logger.error(str(ex))
-        finally:
-            conn.close()
-        return result
-
-    def get_client_crawl_ct(self):
-        """ return list of client crawl connection map """
-
-        conn = self.dbconn.get_conn()
-
-        try:
-            with conn.cursor() as cursor:
-                # Read a single record
-                sql = "SELECT `url_id`"
-                sql += "FROM `client_crawl_ct`"
-                sql += "WHERE `url_id` IN (SELECT `url_id` FROM `crawl_url`)"
-                sql += "ORDER BY `url_id` ASC"
                 cursor.execute(sql)
                 result = cursor.fetchall()
         except pymysql.Error as ex:
@@ -71,7 +50,7 @@ class NewsSpider(scrapy.Spider):
                 meta={'url_id': url['url_id']})
 
     def parse(self, response):
-        """ parse and send notification to registration ids registered on client_crawl_ct """
+        """ parse and save news in the database """
 
         conn = self.dbconn.get_conn()
 
@@ -79,7 +58,7 @@ class NewsSpider(scrapy.Spider):
         # will be in between old articles
         # so it commits new articles until duplicate article is found
         # When duplicate is found, raise integrity error
-        messages_to_be_sent = []
+        
         try:
             for item in response.xpath('//item'):
                 with conn.cursor() as cursor:
@@ -100,12 +79,6 @@ class NewsSpider(scrapy.Spider):
                             item.xpath('./author/text()').extract_first(),
                             item.xpath('./category/text()').extract_first(),))
                     conn.commit()
-                    # save messages to be sent
-                    messages_to_be_sent.append({
-                        'title': item.xpath('./title/text()').extract_first(),
-                        'body': item.xpath('./description/text()').extract_first(),
-                        'url_id': response.meta['url_id']
-                    })
         except pymysql.IntegrityError as ex:
             self.logger.info("DUPLICATE ENTRY")
             self.logger.info(str(ex))
@@ -113,16 +86,3 @@ class NewsSpider(scrapy.Spider):
             self.logger.error(str(ex))
         finally:
             conn.close()
-
-"""
-        push_service = FCMNotification(api_key=self.api_key)
-        while messages_to_be_sent:
-            message = messages_to_be_sent.pop()
-            results = push_service.notify_multiple_devices(
-                registration_ids=self.cts[message['url_id']],
-                message_title=message['title'],
-                message_body=message['body'])
-            for result in results:
-                if result['failure'] != 0:
-                    self.logger.error(result)
-"""
