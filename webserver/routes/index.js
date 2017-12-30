@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 const bodyParser = require('body-parser');
-const urlencode = require('urlencode');
+const urlEncode = require('urlencode');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../dongkeun.config')[env];
@@ -45,7 +45,17 @@ const checkJwt = jwt({
 
 //returns top 20 news of a specific user in the order of published date
 app.get('/news/:id', checkJwt, function (req, res) {
-    pool.query('SELECT title, description, author, news_url, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id inner join client_crawl_ct on crawl_url.url_id = client_crawl_ct.url_id where client_crawl_ct.client_id = ? order by pub_date desc limit 20', [req.params.id], function (err, rows) {
+    const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
+        'FROM news n ' +
+        'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+        'inner join crawl_url cu on nct.url_id = cu.url_id ' +
+        'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
+        'where cct.client_id = ? ' +
+        'group by n.title, n.description, n.author, n.news_url ' +
+        'order by pub_date desc ' +
+        'limit 20';
+
+    pool.query(query, [req.params.id], function (err, rows) {
         if (err)
             throw err;
 
@@ -55,7 +65,15 @@ app.get('/news/:id', checkJwt, function (req, res) {
 
 //returns top 20 news in the order of published date
 app.get('/news', function (req, res) {
-    pool.query('SELECT title, description, author, news_url, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id order by pub_date desc limit 20', function (err, rows) {
+    const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
+        'FROM news n ' +
+        'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+        'inner join crawl_url cu on nct.url_id = cu.url_id ' +
+        'group by n.title, n.description, n.author, n.news_url ' +
+        'order by pub_date desc ' +
+        'limit 20';
+
+    pool.query(query, function (err, rows) {
         if (err)
             throw err;
 
@@ -65,14 +83,32 @@ app.get('/news', function (req, res) {
 
 //returns top 20 news of a specific user in the order of published date
 app.get('/keywords/:id', checkJwt, function (req, res) {
-    pool.query('SELECT client_crawl_ct.url_id, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id inner join client_crawl_ct on crawl_url.url_id = client_crawl_ct.url_id where client_crawl_ct.client_id = ? group by client_crawl_ct.url_id, keyword order by max(pub_date) desc limit 20', [req.params.id], function (err, rows) {
+    const query = 'SELECT cct.url_id, cu.keyword ' +
+        'FROM news n ' +
+        'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+        'inner join crawl_url cu on nct.url_id = cu.url_id ' +
+        'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
+        'where cct.client_id = ? ' +
+        'group by cu.url_id, cu.keyword ' +
+        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ' +
+        'limit 20';
+
+    pool.query(query, [req.params.id], function (err, rows) {
         if (err)
             throw err;
 
         let pending = rows.length;
 
         for (let i = 0; i < rows.length; i++) {
-            pool.query('SELECT title, description, news_url, pub_date, author FROM news where crawled_url_id = ? order by pub_date desc limit 5', [rows[i].url_id], function (err, newsRows) {
+            const newsInKeywordQuery = 'SELECT n.title, n.news_url, n.pub_date, n.author ' +
+                'FROM news n ' +
+                'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+                'where nct.url_id = ? ' +
+                'order by n.pub_date desc ' +
+                'limit 5';
+
+            pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
+                delete rows[i].url_id;
                 rows[i].news = newsRows;
                 if (0 === --pending)
                     res.send(rows);
@@ -83,14 +119,31 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
 
 //returns top 20 news in the order of published date
 app.get('/keywords', function (req, res) {
-    pool.query('SELECT url_id, keyword FROM news inner join crawl_url on news.crawled_url_id = crawl_url.url_id group by url_id, keyword order by max(pub_date) desc limit 20', function (err, rows) {
+    const query = 'SELECT cct.url_id, cu.keyword ' +
+        'FROM news n ' +
+        'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+        'inner join crawl_url cu on nct.url_id = cu.url_id ' +
+        'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
+        'group by cu.url_id, cu.keyword ' +
+        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ' +
+        'limit 20';
+
+    pool.query(query, function (err, rows) {
         if (err)
             throw err;
 
         let pending = rows.length;
 
         for (let i = 0; i < rows.length; i++) {
-            pool.query('SELECT title, description, news_url, pub_date, author FROM news where crawled_url_id = ? order by pub_date desc limit 5', [rows[i].url_id], function (err, newsRows) {
+            const newsInKeywordQuery = 'SELECT n.title, n.news_url, n.pub_date, n.author ' +
+                'FROM news n ' +
+                'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+                'where nct.url_id = ? ' +
+                'order by n.pub_date desc ' +
+                'limit 5';
+
+            pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
+                delete rows[i].url_id;
                 rows[i].news = newsRows;
                 if (0 === --pending)
                     res.send(rows);
@@ -105,7 +158,7 @@ app.post('/addKeyword', checkJwt, function (req, res) {
     let url = req.body.searchWord;
 
     if (req.body.type === 'NAVER')
-        url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlencode(req.body.searchWord);
+        url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlEncode(req.body.searchWord);
 
     pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [url, req.body.keyword], function (err, crawlUrlResult) {
         if (err)
@@ -168,5 +221,5 @@ app.post('/deleteKeyword', checkJwt, function (req, res) {
 });
 
 app.listen(config.server.port, function () {
-    console.log('webserver listening on port ' + config.server.port)
+    console.log('web server listening on port ' + config.server.port)
 });
