@@ -56,8 +56,10 @@ app.get('/news/:id', checkJwt, function (req, res) {
         'limit 20';
 
     pool.query(query, [req.params.id], function (err, rows) {
-        if (err)
-            throw err;
+        if (err) {
+            console.error(err);
+            res.send({});
+        }
 
         res.send(rows)
     });
@@ -74,8 +76,10 @@ app.get('/news', function (req, res) {
         'limit 20';
 
     pool.query(query, function (err, rows) {
-        if (err)
-            throw err;
+        if (err) {
+            console.error(err);
+            res.send({});
+        }
 
         res.send(rows)
     });
@@ -94,8 +98,10 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
         'limit 20';
 
     pool.query(query, [req.params.id], function (err, rows) {
-        if (err)
-            throw err;
+        if (err) {
+            console.error(err);
+            res.send({});
+        }
 
         let pending = rows.length;
 
@@ -129,8 +135,10 @@ app.get('/keywords', function (req, res) {
         'limit 20';
 
     pool.query(query, function (err, rows) {
-        if (err)
-            throw err;
+        if (err) {
+            console.error(err);
+            res.send({});
+        }
 
         let pending = rows.length;
 
@@ -152,6 +160,16 @@ app.get('/keywords', function (req, res) {
     })
 });
 
+function insertClientCrawlCct(urlId, userId) {
+    pool.query('INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)', [urlId, userId], function (err) {
+        if (err) {
+            console.error(err);
+            return false;
+        }
+    });
+    return true;
+}
+
 //add keyword to the database with id from id_token
 //check if keyword exists or not
 app.post('/addKeyword', checkJwt, function (req, res) {
@@ -160,14 +178,24 @@ app.post('/addKeyword', checkJwt, function (req, res) {
     if (req.body.type === 'NAVER')
         url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlEncode(req.body.searchWord);
 
-    pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [url, req.body.keyword], function (err, crawlUrlResult) {
-        if (err)
-            throw err;
+    const query = 'SELECT url_id ' +
+        'FROM crawl_url ' +
+        'WHERE keyword = ? and url = ?';
 
-        pool.query('INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)', [crawlUrlResult.insertId, req.user.sub], function (err) {
-            if (err)
-                throw err;
-        });
+    pool.query(query, [req.body.keyword, url], function (err, rows) {
+        //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
+        if (rows.length === 0)
+            pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [url, req.body.keyword], function (err, crawlUrlResult) {
+                if (err) {
+                    console.error(err);
+                    res.send({});
+                }
+
+                if (!insertClientCrawlCct(crawlUrlResult.insertId, req.user.sub))
+                    res.send({});
+            });
+        else if (!insertClientCrawlCct(rows[0].url_id, req.user.sub))
+            res.send({});
 
         res.send({
             keyword: req.body.keyword,
@@ -178,39 +206,66 @@ app.post('/addKeyword', checkJwt, function (req, res) {
 
 //list keywords according to users
 app.get('/listKeyword', checkJwt, function (req, res) {
-    pool.query('SELECT crawl_url.keyword, crawl_url.mod_dtime FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where client_crawl_ct.client_id = ? order by mod_dtime desc', [req.user.sub], function (err, rows) {
-        if (err)
-            throw err;
+    const query = 'SELECT cu.keyword, cu.mod_dtime ' +
+        'FROM client_crawl_ct cct ' +
+        'inner join crawl_url cu on cct.url_id = cu.url_id ' +
+        'where cct.client_id = ? ' +
+        'order by cu.mod_dtime desc';
+
+    pool.query(query, [req.user.sub], function (err, rows) {
+        if (err) {
+            console.error(err);
+            res.send({});
+        }
+
         res.send(rows);
     })
 });
 
 //delete client_crawl_ct, crawl_url, news, when keyword is deleted
+//test required
 app.post('/deleteKeyword', checkJwt, function (req, res) {
     pool.query('SELECT crawl_url.url_id FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where crawl_url.keyword = ? and client_crawl_ct.client_id=?',
         [req.body.keyword, req.user.sub],
         function (err, crawlUrlResult) {
-            if (err)
-                throw err;
+            if (err) {
+                console.error(err);
+                res.send({});
+            }
 
-            if (crawlUrlResult.length !== 1)
-                throw "No keyword found";
+            if (crawlUrlResult.length !== 1) {
+                console.error("No keyword found");
+                res.send({});
+            }
 
             let urlId = crawlUrlResult[0].url_id;
 
             pool.query('DELETE FROM client_crawl_ct where url_id = ? and client_id = ?', [urlId, req.user.sub], function (err) {
-                if (err)
-                    throw err;
+                if (err) {
+                    console.error(err);
+                    res.send({});
+                }
             });
 
-            pool.query('DELETE FROM crawl_url where url_id = ?', [urlId], function (err) {
-                if (err)
-                    throw err;
+            pool.query('DELETE FROM crawl_url WHERE url_id = ? and url_id not in (SELECT url_id FROM client_crawl_ct)', [urlId], function (err) {
+                if (err) {
+                    console.error(err);
+                    res.send({});
+                }
             });
 
-            pool.query('DELETE FROM news where crawled_url_id = ?', [urlId], function (err) {
-                if (err)
-                    throw err;
+            pool.query('DELETE FROM news_crawl_ct WHERE url_id = ? and url_id not in (SELECT url_id FROM crawl_url)', [urlId], function (err) {
+                if (err) {
+                    console.error(err);
+                    res.send({});
+                }
+            });
+
+            pool.query('DELETE FROM news WHERE news_url not in (SELECT news_url FROM new_crawl_ct)', [urlId], function (err) {
+                if (err) {
+                    console.error(err);
+                    res.send({});
+                }
             });
 
             res.send({
