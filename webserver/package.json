@@ -1,6 +1,7 @@
 {
   "name": "webserver",
   "version": "1.0.0",
+  "private": true,
   "description": "webserver for newscard reactjs app",
   "main": "routes/index.js",
   "scripts": {
