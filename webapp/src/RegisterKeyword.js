@@ -40,8 +40,6 @@ export class RegisterKeyword extends React.Component {
                     this.setState({isMessageError: ''});
                     this.setState({messageHeader: '저장 성공'});
                     this.setState({messageContent: '"' + json.keyword + '" 저장에 성공하였습니다.'});
-                    this.setState({newKeyword: ''});
-                    this.setState({newSearchWord: ''});
                 } else {
                     this.handleError();
                 }

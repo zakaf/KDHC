@@ -99,15 +99,19 @@ export class KeywordList extends React.Component {
                     {
                         this.state.keyword.map((row) => {
                             return (<List.Item key={row.keyword}>
-                                    <List.Content floated='right'>
-                                        <Button onClick={() => this.deleteKeyword(row.keyword)}>
+                                    <Button onClick={() => this.deleteKeyword(row.keyword)} floated='right'>
                                             Delete
-                                        </Button>
-                                    </List.Content>
+                                    </Button>
                                     <List.Icon name='newspaper' size='large'/>
                                     <List.Content>
-                                        <List.Header>{row.keyword}</List.Header>
-                                        <List.Description><TimeAgo date={row.mod_dtime}/></List.Description>
+                                        <List.Header>
+                                            <Header floated='left' size='small'>
+                                                {row.keyword}
+                                            </Header>
+                                        </List.Header>
+                                        <List.Content floated='left'>
+                                            <List.Description><TimeAgo date={row.mod_dtime}/></List.Description>
+                                        </List.Content>
                                     </List.Content>
                                 </List.Item>
                             )
