@@ -52,7 +52,7 @@ app.get('/news/:id', checkJwt, function (req, res) {
         'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
         'where cct.client_id = ? ' +
         'group by n.title, n.description, n.author, n.news_url ' +
-        'order by pub_date desc ' +
+        'order by pub_date desc, keyword asc ' +
         'limit 20';
 
     pool.query(query, [req.params.id], function (err, rows) {
@@ -72,7 +72,7 @@ app.get('/news', function (req, res) {
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
         'inner join crawl_url cu on nct.url_id = cu.url_id ' +
         'group by n.title, n.description, n.author, n.news_url ' +
-        'order by pub_date desc ' +
+        'order by pub_date desc, keyword asc ' +
         'limit 20';
 
     pool.query(query, function (err, rows) {
@@ -124,6 +124,7 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
 });
 
 //returns top 20 news in the order of published date
+//삼성전자 asc
 app.get('/keywords', function (req, res) {
     const query = 'SELECT cct.url_id, cu.keyword ' +
         'FROM news n ' +
@@ -227,52 +228,56 @@ app.get('/listKeyword', checkJwt, function (req, res) {
 app.post('/deleteKeyword', checkJwt, function (req, res) {
     pool.query('SELECT crawl_url.url_id FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where crawl_url.keyword = ? and client_crawl_ct.client_id=?',
         [req.body.keyword, req.user.sub],
-        function (err, crawlUrlResult) {
+        function (err, result) {
+
             if (err) {
                 console.error(err);
                 res.send({});
             }
 
-            if (crawlUrlResult.length !== 1) {
+            if (result.length !== 1) {
                 console.error("No keyword found");
                 res.send({});
             }
 
-            let urlId = crawlUrlResult[0].url_id;
+            let urlId = result[0].url_id;
 
-            pool.query('DELETE FROM client_crawl_ct where url_id = ? and client_id = ?', [urlId, req.user.sub], function (err) {
+            pool.query('DELETE FROM client_crawl_ct WHERE url_id = ? and client_id = ?', [urlId, req.user.sub], function (err, result) {
+
                 if (err) {
                     console.error(err);
                     res.send({});
                 }
-            });
 
-            pool.query('DELETE FROM crawl_url WHERE url_id = ? and url_id not in (SELECT url_id FROM client_crawl_ct)', [urlId], function (err) {
+                pool.query('DELETE FROM crawl_url WHERE url_id = ? and url_id not in (SELECT url_id FROM client_crawl_ct)', [urlId], function (err, result) {
+
                 if (err) {
                     console.error(err);
                     res.send({});
                 }
-            });
 
-            pool.query('DELETE FROM news_crawl_ct WHERE url_id = ? and url_id not in (SELECT url_id FROM crawl_url)', [urlId], function (err) {
-                if (err) {
-                    console.error(err);
-                    res.send({});
-                }
-            });
+                    pool.query('DELETE FROM news_crawl_ct WHERE url_id = ? and url_id not in (SELECT url_id FROM crawl_url)', [urlId], function (err, result) {
 
-            pool.query('DELETE FROM news WHERE news_url not in (SELECT news_url FROM new_crawl_ct)', [urlId], function (err) {
-                if (err) {
-                    console.error(err);
-                    res.send({});
-                }
+                        if (err) {
+                            console.error(err);
+                            res.send({});
+                        }
+
+                        pool.query('DELETE FROM news WHERE news_url not in (SELECT news_url FROM news_crawl_ct)', [urlId], function (err, result) {
+
+                            if (err) {
+                                console.error(err);
+                                res.send({});
+                            }
+                        });
+                    });
+                });
             });
 
             res.send({
                 keyword: req.body.keyword
             });
-        })
-    ;
+        });
 });
 
 app.listen(config.server.port, function () {
