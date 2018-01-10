@@ -5,14 +5,14 @@
   "dependencies": {
     "auth0-js": "^9.0.2",
     "jwt-decode": "^2.2.0",
-    "react": "^15.6.2",
+    "react": "^16.2.0",
     "react-document-title": "^2.0.3",
-    "react-dom": "^15.6.2",
+    "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.10",
+    "react-scripts": "1.0.17",
     "react-timeago": "^3.4.3",
     "semantic-ui-css": "^2.2.12",
-    "semantic-ui-react": "^0.71.5",
+    "semantic-ui-react": "^0.77.2",
     "whatwg-fetch": "^2.0.3"
   },
   "scripts": {
