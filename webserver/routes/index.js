@@ -18,6 +18,8 @@ const pool = mysql.createPool({
     connectionLimit: 50
 });
 
+const pageSize = 30;
+
 const app = express();
 
 app.use(cors());
@@ -44,7 +46,7 @@ const checkJwt = jwt({
 });
 
 //returns top 20 news of a specific user in the order of published date
-app.get('/news/:id', checkJwt, function (req, res) {
+app.get('/news/:pageNum/:id/', checkJwt, function (req, res) {
     const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
         'FROM news n ' +
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
@@ -53,9 +55,9 @@ app.get('/news/:id', checkJwt, function (req, res) {
         'where cct.client_id = ? ' +
         'group by n.title, n.description, n.author, n.news_url ' +
         'order by pub_date desc, keyword asc ' +
-        'limit 20';
+        'limit ?,?';
 
-    pool.query(query, [req.params.id], function (err, rows) {
+    pool.query(query, [req.params.id, 0, req.params.pageNum * pageSize], function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
@@ -66,16 +68,16 @@ app.get('/news/:id', checkJwt, function (req, res) {
 });
 
 //returns top 20 news in the order of published date
-app.get('/news', function (req, res) {
+app.get('/news/:pageNum', function (req, res) {
     const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
         'FROM news n ' +
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
         'inner join crawl_url cu on nct.url_id = cu.url_id ' +
         'group by n.title, n.description, n.author, n.news_url ' +
         'order by pub_date desc, keyword asc ' +
-        'limit 20';
+        'limit ?, ?';
 
-    pool.query(query, function (err, rows) {
+    pool.query(query, [0, req.params.pageNum * pageSize], function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
