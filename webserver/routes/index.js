@@ -53,7 +53,7 @@ app.get('/news/:pageNum/:id/', checkJwt, function (req, res) {
         'inner join crawl_url cu on nct.url_id = cu.url_id ' +
         'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
         'where cct.client_id = ? ' +
-        'group by n.title, n.description, n.author, n.news_url ' +
+        'group by n.news_url ' +
         'order by pub_date desc, keyword asc ' +
         'limit ?,?';
 
@@ -73,7 +73,7 @@ app.get('/news/:pageNum', function (req, res) {
         'FROM news n ' +
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
         'inner join crawl_url cu on nct.url_id = cu.url_id ' +
-        'group by n.title, n.description, n.author, n.news_url ' +
+        'group by n.news_url ' +
         'order by pub_date desc, keyword asc ' +
         'limit ?, ?';
 
