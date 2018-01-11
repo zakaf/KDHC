@@ -18,12 +18,12 @@ const pool = mysql.createPool({
     connectionLimit: 50
 });
 
-const pageSize = 30;
+const pageSize = 20; //4의 배수인것이 좋다
 
 const app = express();
 
 app.use(cors());
-app.use(morgan('combined'));
+app.use(morgan(config.logLevel));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -96,8 +96,7 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
         'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
         'where cct.client_id = ? ' +
         'group by cu.url_id, cu.keyword ' +
-        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ' +
-        'limit 20';
+        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ';
 
     pool.query(query, [req.params.id], function (err, rows) {
         if (err) {
