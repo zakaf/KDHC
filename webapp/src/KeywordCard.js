@@ -36,9 +36,9 @@ export class KeywordCard extends React.Component {
     componentDidMount() {
         this.loadData();
 
-        let config = require('./config/config.js');
+        const config = require('./config/config.js');
 
-        var intervalId = setInterval(this.loadData, config.config.refreshInterval);
+        let intervalId = setInterval(this.loadData, config.config.refreshInterval);
 
         /* store intervalId in the state so it can be accessed later:*/
         this.setState({intervalId: intervalId});
@@ -54,12 +54,23 @@ export class KeywordCard extends React.Component {
             return null;
         }
 
+        const color = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey'];
+
+        let prevColor = null;
+
         return (
             <Segment basic loading={this.state.isFetching}>
                 <Card.Group itemsPerRow="3" stackable>
                     {
                         this.state.keyword.map(function (row) {
-                            return (<Card key={row.keyword}>
+                            let currColor = color[Math.floor(Math.random() * color.length)];
+
+                            while (currColor === prevColor)
+                                currColor = color[Math.floor(Math.random() * color.length)];
+
+                            prevColor = currColor;
+
+                            return (<Card key={row.keyword} color={currColor}>
                                 <Card.Content>
                                     <Card.Header>
                                         {row.keyword}
