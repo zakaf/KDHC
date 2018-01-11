@@ -94,7 +94,7 @@ export class NewsCard extends React.Component {
         this.state.news.forEach((row) => {
             items.push(
                 <Card href={row.news_url} key={row.news_url}
-                      color={color[row.title.charCodeAt(row.title.length - 1) % (color.length + 1)]}>
+                      color={color[row.title.charCodeAt(row.title.length - 1) % color.length]}>
                     <Card.Content header={row.title}/>
                     <Card.Meta content={row.author}/>
                     <Card.Content description={row.description}/>
