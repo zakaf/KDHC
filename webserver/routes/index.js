@@ -45,6 +45,56 @@ const checkJwt = jwt({
     algorithms: ['RS256']
 });
 
+function returnError(err, res) {
+    let status = 'success';
+
+    if (err) {
+        console.error(err);
+        status = 'error';
+    }
+
+    res.send({
+        'status': status
+    });
+}
+
+/**
+ * Convenience wrapper for database connection in a transaction (referenced from https://gist.github.com/glenjamin/8924190)
+ */
+function runTransaction(pool, body, callback) {
+    pool.getConnection(function (err, conn) {
+        if (err) return callback(err);
+
+        conn.beginTransaction(function (err) {
+            if (err) return done(err);
+
+            body(conn, function (err, res) {
+                // Commit or rollback transaction, then proxy callback
+                let args = arguments;
+
+                if (err) {
+                    if (err === 'rollback') {
+                        args[0] = err = null;
+                    }
+                    conn.rollback(function () {
+                        done.apply(this, args)
+                    });
+                } else {
+                    conn.commit(function (err) {
+                        args[0] = err;
+                        done.apply(this, args)
+                    })
+                }
+            });
+
+            function done() {
+                conn.release();
+                callback.apply(this, arguments);
+            }
+        });
+    })
+}
+
 //returns top 20 news of a specific user in the order of published date
 app.get('/news/:pageNum/:id/', checkJwt, function (req, res) {
     const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
@@ -162,16 +212,6 @@ app.get('/keywords', function (req, res) {
     })
 });
 
-function insertClientCrawlCct(urlId, userId) {
-    pool.query('INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)', [urlId, userId], function (err) {
-        if (err) {
-            console.error(err);
-            return false;
-        }
-    });
-    return true;
-}
-
 //add keyword to the database with id from id_token
 //check if keyword exists or not
 app.post('/addKeyword', checkJwt, function (req, res) {
@@ -180,30 +220,28 @@ app.post('/addKeyword', checkJwt, function (req, res) {
     if (req.body.type === 'NAVER')
         url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlEncode(req.body.searchWord);
 
-    const query = 'SELECT url_id ' +
-        'FROM crawl_url ' +
-        'WHERE keyword = ? and url = ?';
+    runTransaction(pool, function (conn, next) {
+        conn.query('SELECT url_id FROM crawl_url WHERE keyword = ? and url = ?', [req.body.keyword, url], function (err, rows) {
+            if (err) return next(err, res);
 
-    pool.query(query, [req.body.keyword, url], function (err, rows) {
-        //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
-        if (rows.length === 0)
-            pool.query('INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())', [url, req.body.keyword], function (err, crawlUrlResult) {
-                if (err) {
-                    console.error(err);
-                    res.send({});
-                }
+            const insertCrawlUrlQuery = 'INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())';
+            const insertClientCrawlCtQuery = 'INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)';
 
-                if (!insertClientCrawlCct(crawlUrlResult.insertId, req.user.sub))
-                    res.send({});
-            });
-        else if (!insertClientCrawlCct(rows[0].url_id, req.user.sub))
-            res.send({});
+            //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
+            if (rows.length === 0)
+                conn.query(insertCrawlUrlQuery, [url, req.body.keyword], function (err, crawlUrlResult) {
+                    if (err) return next(err, res);
 
-        res.send({
-            keyword: req.body.keyword,
-            searchWord: req.body.searchWord
+                    conn.query(insertClientCrawlCtQuery, [crawlUrlResult.insertId, req.user.sub], function (err) {
+                        return next(err, res);
+                    });
+                });
+            else
+                conn.query(insertClientCrawlCtQuery, [rows[0].url_id, req.user.sub], function (err) {
+                    return next(err, res);
+                });
         });
-    });
+    }, returnError);
 });
 
 //list keywords according to users

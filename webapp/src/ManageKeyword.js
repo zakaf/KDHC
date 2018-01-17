@@ -56,7 +56,7 @@ export class ManageKeyword extends React.Component {
             })
             .then(response => response.json())
             .then(json => {
-                if (json.keyword === keyword && json.searchWord === searchWord)
+                if (json.status === 'success')
                     this.setSuccessMessage('"' + keyword + '" 추가에 성공하였습니다.');
                 else
                     this.setErrorMessage('"' + keyword + '" 추가에 실패하였습니다.');
