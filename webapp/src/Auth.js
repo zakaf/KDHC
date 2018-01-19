@@ -5,10 +5,10 @@ import decode from 'jwt-decode';
 
 export default class Auth {
     auth0 = new auth0.WebAuth({
-        domain: config.config.authUrl,
-        clientID: config.config.authClientId,
-        redirectUri: config.config.redirectUrl,
-        audience: config.config.audience,
+        domain: config.authUrl,
+        clientID: config.authClientId,
+        redirectUri: config.redirectUrl,
+        audience: config.audience,
         responseType: 'token id_token',
         scope: 'openid'
     });

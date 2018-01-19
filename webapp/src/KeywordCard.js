@@ -18,18 +18,20 @@ export class KeywordCard extends React.Component {
     }
 
     loadData() {
-        let config = require('./config/config.js');
+        const config = require('./config/config.js');
 
         this.setState({isFetching: true});
 
-        fetch(config.config.serverUrl + "/keywords/" + this.props.sub,
-            {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
+        const path = this.props.sub === '' ? "/keywords/" : "/userKeywords/";
+
+        fetch(config.serverUrl + path, {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
             .then(response => response.json())
             .then(json => {
-                this.setState({
-                    keyword: json,
-                    isFetching: null
-                })
+                if (json.status === 'success')
+                    this.setState({
+                        keyword: json.data,
+                        isFetching: null
+                    });
             })
     }
 
@@ -38,7 +40,7 @@ export class KeywordCard extends React.Component {
 
         const config = require('./config/config.js');
 
-        let intervalId = setInterval(this.loadData, config.config.refreshInterval);
+        let intervalId = setInterval(this.loadData, config.refreshInterval);
 
         /* store intervalId in the state so it can be accessed later:*/
         this.setState({intervalId: intervalId});

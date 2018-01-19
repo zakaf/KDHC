@@ -36,37 +36,41 @@ export class NewsCard extends React.Component {
                 nextPageNum: this.state.nextPageNum - 1
             });
 
-        let config = require('./config/config.js');
+        const config = require('./config/config.js');
 
         this.setState({isFetching: true});
 
-        fetch(config.config.serverUrl + "/news/" + this.state.nextPageNum + "/" + this.props.sub,
-            {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
+        const path = this.props.sub === '' ? "/news/" : "/userNews/";
+
+        fetch(config.serverUrl + path + this.state.nextPageNum, {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
             .then(response => response.json())
             .then(json => {
-                //이렇게 해놓으면 마지막 장에 페이지당 최대 데이터 갯수만큼 안와도 동일하게 행동하므로 nextPageNum이 꼬임.
-                //새로고침 주기당 뉴스가 1개씩 추가된다는 가정아래에 실제로 9페이지에 포함될 내용인 뉴스가 1개씩 추가되면
-                //nextPageNum은 계속 1씩 증가할 것이다. 새로고침 주기 사이에 갑자기 페이지당 최대 데이터 갯수만큼 뉴스가 추가되지 않는 이상
-                //사용자가 차이를 느끼지는 못한다.
-                if (json.length !== this.state.news.length || isRefresh)
+                if (json.status === 'success') {
+                    //이렇게 해놓으면 마지막 장에 페이지당 최대 데이터 갯수만큼 안와도 동일하게 행동하므로 nextPageNum이 꼬임.
+                    //새로고침 주기당 뉴스가 1개씩 추가된다는 가정아래에 실제로 9페이지에 포함될 내용인 뉴스가 1개씩 추가되면
+                    //nextPageNum은 계속 1씩 증가할 것이다. 새로고침 주기 사이에 갑자기 페이지당 최대 데이터 갯수만큼 뉴스가 추가되지 않는 이상
+                    //사용자가 차이를 느끼지는 못한다.
+
+                    if (json.data.length !== this.state.news.length || isRefresh)
+                        this.setState({
+                            nextPageNum: this.state.nextPageNum + 1
+                        });
+
                     this.setState({
-                        nextPageNum: this.state.nextPageNum + 1
+                        news: json.data,
+                        isFetching: null
                     });
 
-                this.setState({
-                    news: json,
-                    isFetching: null
-                });
-
-                this.endRefresh();
-                this.startRefresh();
-            })
+                    this.endRefresh();
+                    this.startRefresh();
+                }
+            });
     }
 
     startRefresh() {
         let config = require('./config/config.js');
 
-        const intervalId = setTimeout(this.refreshData, config.config.refreshInterval);
+        const intervalId = setTimeout(this.refreshData, config.refreshInterval);
 
         /* store intervalId in the state so it can be accessed later:*/
         this.setState({intervalId: intervalId});

@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 
-const env = process.env.NODE_ENV || 'development';
-const config = require('../../dongkeun.config')[env];
+const config = require('./config');
 
 module.exports = Object.freeze({
     pool: mysql.createPool({

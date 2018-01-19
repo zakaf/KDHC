@@ -5,6 +5,8 @@ import KeywordList from "./KeywordList";
 import RegisterKeywordForm from "./RegisterKeywordForm";
 import DismissibleMessage from "./DismissibleMessage";
 
+const config = require('./config/config.js');
+
 export class ManageKeyword extends React.Component {
     constructor(props) {
         super(props);
@@ -42,9 +44,7 @@ export class ManageKeyword extends React.Component {
     };
 
     addKeyword(keyword, searchWord) {
-        let config = require('./config/config.js');
-
-        fetch(config.config.serverUrl + "/addKeyword",
+        fetch(config.serverUrl + "/addKeyword",
             {
                 method: 'post',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
@@ -67,9 +67,7 @@ export class ManageKeyword extends React.Component {
     }
 
     deleteKeyword(keyword) {
-        let config = require('./config/config.js');
-
-        fetch(config.config.serverUrl + "/deleteKeyword",
+        fetch(config.serverUrl + "/deleteKeyword",
             {
                 method: 'post',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
@@ -90,9 +88,7 @@ export class ManageKeyword extends React.Component {
     }
 
     loadData() {
-        let config = require('./config/config.js');
-
-        fetch(config.config.serverUrl + "/listKeyword", {
+        fetch(config.serverUrl + "/listKeyword", {
             headers: {
                 'Authorization': 'Bearer ' + this.props.idToken,
                 'Cache-Control': 'no-cache'
