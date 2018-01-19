@@ -1,22 +1,14 @@
 const cors = require('cors');
 const express = require('express');
-const mysql = require('mysql');
 const morgan = require('morgan');
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 const bodyParser = require('body-parser');
-const urlEncode = require('urlencode');
+const keyword = require('./keyword');
+const database = require('./helper/database');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../dongkeun.config')[env];
-
-const pool = mysql.createPool({
-    host: config.database.host,
-    user: config.database.id,
-    password: config.database.pw,
-    database: config.database.db,
-    connectionLimit: 50
-});
 
 const pageSize = 20; //4의 배수인것이 좋다
 
@@ -45,56 +37,6 @@ const checkJwt = jwt({
     algorithms: ['RS256']
 });
 
-function returnError(err, res) {
-    let status = 'success';
-
-    if (err) {
-        console.error(err);
-        status = 'error';
-    }
-
-    res.send({
-        'status': status
-    });
-}
-
-/**
- * Convenience wrapper for database connection in a transaction (referenced from https://gist.github.com/glenjamin/8924190)
- */
-function runTransaction(pool, body, callback) {
-    pool.getConnection(function (err, conn) {
-        if (err) return callback(err);
-
-        conn.beginTransaction(function (err) {
-            if (err) return done(err);
-
-            body(conn, function (err, res) {
-                // Commit or rollback transaction, then proxy callback
-                let args = arguments;
-
-                if (err) {
-                    if (err === 'rollback') {
-                        args[0] = err = null;
-                    }
-                    conn.rollback(function () {
-                        done.apply(this, args)
-                    });
-                } else {
-                    conn.commit(function (err) {
-                        args[0] = err;
-                        done.apply(this, args)
-                    })
-                }
-            });
-
-            function done() {
-                conn.release();
-                callback.apply(this, arguments);
-            }
-        });
-    })
-}
-
 //returns top 20 news of a specific user in the order of published date
 app.get('/news/:pageNum/:id/', checkJwt, function (req, res) {
     const query = 'SELECT n.title, n.description, n.author, n.news_url, GROUP_CONCAT(cu.keyword SEPARATOR ", ") as keyword ' +
@@ -107,7 +49,7 @@ app.get('/news/:pageNum/:id/', checkJwt, function (req, res) {
         'order by pub_date desc, keyword asc ' +
         'limit ?,?';
 
-    pool.query(query, [req.params.id, 0, req.params.pageNum * pageSize], function (err, rows) {
+    database.pool.query(query, [req.params.id, 0, req.params.pageNum * pageSize], function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
@@ -127,7 +69,7 @@ app.get('/news/:pageNum', function (req, res) {
         'order by pub_date desc, keyword asc ' +
         'limit ?, ?';
 
-    pool.query(query, [0, req.params.pageNum * pageSize], function (err, rows) {
+    database.pool.query(query, [0, req.params.pageNum * pageSize], function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
@@ -148,7 +90,7 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
         'group by cu.url_id, cu.keyword ' +
         'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ';
 
-    pool.query(query, [req.params.id], function (err, rows) {
+    database.pool.query(query, [req.params.id], function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
@@ -164,7 +106,7 @@ app.get('/keywords/:id', checkJwt, function (req, res) {
                 'order by n.pub_date desc ' +
                 'limit 5';
 
-            pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
+            database.pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
                 delete rows[i].url_id;
                 rows[i].news = newsRows;
                 if (0 === --pending)
@@ -186,7 +128,7 @@ app.get('/keywords', function (req, res) {
         'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ' +
         'limit 20';
 
-    pool.query(query, function (err, rows) {
+    database.pool.query(query, function (err, rows) {
         if (err) {
             console.error(err);
             res.send({});
@@ -202,7 +144,7 @@ app.get('/keywords', function (req, res) {
                 'order by n.pub_date desc ' +
                 'limit 5';
 
-            pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
+            database.pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
                 delete rows[i].url_id;
                 rows[i].news = newsRows;
                 if (0 === --pending)
@@ -213,111 +155,13 @@ app.get('/keywords', function (req, res) {
 });
 
 //add keyword to the database with id from id_token
-//check if keyword exists or not
-app.post('/addKeyword', checkJwt, function (req, res) {
-    let url = req.body.searchWord;
-
-    if (req.body.type === 'NAVER')
-        url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlEncode(req.body.searchWord);
-
-    runTransaction(pool, function (conn, next) {
-        conn.query('SELECT url_id FROM crawl_url WHERE keyword = ? and url = ?', [req.body.keyword, url], function (err, rows) {
-            if (err) return next(err, res);
-
-            const insertCrawlUrlQuery = 'INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())';
-            const insertClientCrawlCtQuery = 'INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)';
-
-            //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
-            if (rows.length === 0)
-                conn.query(insertCrawlUrlQuery, [url, req.body.keyword], function (err, crawlUrlResult) {
-                    if (err) return next(err, res);
-
-                    conn.query(insertClientCrawlCtQuery, [crawlUrlResult.insertId, req.user.sub], function (err) {
-                        return next(err, res);
-                    });
-                });
-            else
-                conn.query(insertClientCrawlCtQuery, [rows[0].url_id, req.user.sub], function (err) {
-                    return next(err, res);
-                });
-        });
-    }, returnError);
-});
+app.post('/addKeyword', checkJwt, keyword.addKeyword);
 
 //list keywords according to users
-app.get('/listKeyword', checkJwt, function (req, res) {
-    const query = 'SELECT cu.keyword, cu.mod_dtime ' +
-        'FROM client_crawl_ct cct ' +
-        'inner join crawl_url cu on cct.url_id = cu.url_id ' +
-        'where cct.client_id = ? ' +
-        'order by cu.mod_dtime desc';
-
-    pool.query(query, [req.user.sub], function (err, rows) {
-        if (err) {
-            console.error(err);
-            res.send({});
-        }
-
-        res.send(rows);
-    })
-});
+app.get('/listKeyword', checkJwt, keyword.listKeyword);
 
 //delete client_crawl_ct, crawl_url, news, when keyword is deleted
-//test required
-app.post('/deleteKeyword', checkJwt, function (req, res) {
-    pool.query('SELECT crawl_url.url_id FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where crawl_url.keyword = ? and client_crawl_ct.client_id=?',
-        [req.body.keyword, req.user.sub],
-        function (err, result) {
-
-            if (err) {
-                console.error(err);
-                res.send({});
-            }
-
-            if (result.length !== 1) {
-                console.error("No keyword found");
-                res.send({});
-            }
-
-            let urlId = result[0].url_id;
-
-            pool.query('DELETE FROM client_crawl_ct WHERE url_id = ? and client_id = ?', [urlId, req.user.sub], function (err, result) {
-
-                if (err) {
-                    console.error(err);
-                    res.send({});
-                }
-
-                pool.query('DELETE FROM crawl_url WHERE url_id = ? and url_id not in (SELECT url_id FROM client_crawl_ct)', [urlId], function (err, result) {
-
-                if (err) {
-                    console.error(err);
-                    res.send({});
-                }
-
-                    pool.query('DELETE FROM news_crawl_ct WHERE url_id = ? and url_id not in (SELECT url_id FROM crawl_url)', [urlId], function (err, result) {
-
-                        if (err) {
-                            console.error(err);
-                            res.send({});
-                        }
-
-                        pool.query('DELETE FROM news WHERE news_url not in (SELECT news_url FROM news_crawl_ct)', [urlId], function (err, result) {
-
-                            if (err) {
-                                console.error(err);
-                                res.send({});
-                            }
-                        });
-                    });
-                });
-            });
-
-            res.send({
-                keyword: req.body.keyword
-            });
-        });
-});
+app.post('/deleteKeyword', checkJwt, keyword.deleteKeyword);
 
 app.listen(config.server.port, function () {
     console.log('web server listening on port ' + config.server.port)

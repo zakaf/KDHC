@@ -79,7 +79,7 @@ export class ManageKeyword extends React.Component {
             })
             .then(response => response.json())
             .then(json => {
-                if (json.keyword === keyword)
+                if (json.status === 'success')
                     this.setSuccessMessage('"' + keyword + '" 삭제에 성공하였습니다.');
                 else
                     this.setErrorMessage('"' + keyword + '" 삭제에 실패하였습니다.');
@@ -100,9 +100,13 @@ export class ManageKeyword extends React.Component {
         })
             .then(response => response.json())
             .then(json => {
-                //새로고침을 위해 강제로 데이터 초기화 후 지정해준다.
-                this.setState({keywords: null});
-                this.setState({keywords: json});
+                if (json.status === 'success') {
+                    //새로고침을 위해 강제로 데이터 초기화 후 지정해준다.
+                    this.setState({keywords: null});
+                    this.setState({keywords: json.data});
+                }
+                else
+                    this.setErrorMessage('새로고침에 실패하였습니다.');
             }).catch(() => {
             this.setErrorMessage('새로고침에 실패하였습니다.');
         });
