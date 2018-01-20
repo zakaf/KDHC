@@ -5,6 +5,7 @@ import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
 import './css/Feed.css';
 import './css/Divider.css';
+import NoKeywordMessage from "./NoKeywordMessage";
 
 export class KeywordCard extends React.Component {
     constructor(props) {
@@ -12,7 +13,8 @@ export class KeywordCard extends React.Component {
         this.state = {
             keyword: null,
             intervalId: null,
-            isFetching: null
+            isFetching: null,
+            isLoaded: false
         };
         this.loadData = this.loadData.bind(this);
     }
@@ -30,7 +32,8 @@ export class KeywordCard extends React.Component {
                 if (json.status === 'success')
                     this.setState({
                         keyword: json.data,
-                        isFetching: null
+                        isFetching: null,
+                        isLoaded: true
                     });
             })
     }
@@ -52,8 +55,10 @@ export class KeywordCard extends React.Component {
     }
 
     render() {
-        if (!this.state.keyword) {
+        if (this.state.isLoaded === false)
             return null;
+        else if (this.state.keyword.length === 0) {
+            return <NoKeywordMessage/>;
         }
 
         const color = ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet', 'purple', 'pink', 'brown', 'grey'];

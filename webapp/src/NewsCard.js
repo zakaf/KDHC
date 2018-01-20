@@ -2,6 +2,7 @@ import React from 'react';
 import {Card, Icon, Segment, Visibility} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './css/Card.css';
+import NoKeywordMessage from "./NoKeywordMessage";
 
 export class NewsCard extends React.Component {
     handleUpdate = (e, {calculations}) => {
@@ -16,7 +17,8 @@ export class NewsCard extends React.Component {
             intervalId: null,
             isFetching: null,
             hasMoreItems: true,
-            nextPageNum: 1
+            nextPageNum: 1,
+            isLoaded: false,
         };
         this.loadNextPage = this.loadNextPage.bind(this);
         this.refreshData = this.refreshData.bind(this);
@@ -58,7 +60,8 @@ export class NewsCard extends React.Component {
 
                     this.setState({
                         news: json.data,
-                        isFetching: null
+                        isFetching: null,
+                        isLoaded: true
                     });
 
                     this.endRefresh();
@@ -110,15 +113,20 @@ export class NewsCard extends React.Component {
             );
         });
 
-        return (
-            <Visibility onUpdate={this.handleUpdate}>
-                <Segment basic loading={this.state.isFetching}>
-                    <Card.Group itemsPerRow="4" stackable>
-                        {items}
-                    </Card.Group>
-                </Segment>
-            </Visibility>
-        )
+        if (this.state.isLoaded === false)
+            return null;
+        else if (items.length === 0)
+            return <NoKeywordMessage/>;
+        else
+            return (
+                <Visibility onUpdate={this.handleUpdate}>
+                    <Segment basic loading={this.state.isFetching}>
+                        <Card.Group itemsPerRow="4" stackable>
+                            {items}
+                        </Card.Group>
+                    </Segment>
+                </Visibility>
+            );
     }
 }
 
