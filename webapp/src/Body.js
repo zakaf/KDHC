@@ -6,6 +6,7 @@ import KeywordCard from "./KeywordCard";
 import ManageKeyword from "./ManageKeyword";
 import Callback from "./Callback"
 import './css/Body.css';
+import PrivacyPolicy from "./PrivacyPolicy";
 
 class Body extends React.Component {
     render() {
@@ -32,6 +33,9 @@ class Body extends React.Component {
                     )}/>
                     <Route path='/manageKeyword' render={(props) => (
                         <ManageKeyword sub={openIdSub} idToken={idToken}/>
+                    )}/>
+                    <Route path='/privacyPolicy' render={(props) => (
+                        <PrivacyPolicy/>
                     )}/>
                     <Route path="/callback" render={(props) => {
                         handleAuthentication(props);

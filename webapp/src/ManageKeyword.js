@@ -1,16 +1,20 @@
 import React from 'react';
-import {Divider} from 'semantic-ui-react';
+import {Menu, Segment} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import KeywordList from "./KeywordList";
 import RegisterKeywordForm from "./RegisterKeywordForm";
 import DismissibleMessage from "./DismissibleMessage";
+import PrivacyPolicy from './PrivacyPolicy';
 
 const config = require('./config/config.js');
 
 export class ManageKeyword extends React.Component {
+    handleItemClick = (e, {name}) => this.setState({activeItem: name});
+
     constructor(props) {
         super(props);
         this.state = {
+            activeItem: 'listKeyword',
             keywords: null,
             showMessage: false,
             isSuccess: true,
@@ -56,11 +60,12 @@ export class ManageKeyword extends React.Component {
             })
             .then(response => response.json())
             .then(json => {
-                if (json.status === 'success')
+                if (json.status === 'success') {
                     this.setSuccessMessage('"' + keyword + '" 추가에 성공하였습니다.');
+                    this.loadData();
+                }
                 else
                     this.setErrorMessage('"' + keyword + '" 추가에 실패하였습니다.');
-                this.loadData();
             }).catch(() => {
             this.setErrorMessage('"' + keyword + '" 추가에 실패하였습니다.');
         });
@@ -113,13 +118,33 @@ export class ManageKeyword extends React.Component {
     }
 
     render() {
+        const {activeItem} = this.state;
+
+        let content = null;
+
+        if (activeItem === 'listKeyword')
+            content = (<RegisterKeywordForm addKeyword={this.addKeyword}/>);
+        else if (activeItem === 'addKeyword')
+            content = (<KeywordList keywords={this.state.keywords} deleteKeyword={this.deleteKeyword}/>);
+        else if (activeItem === 'privacyPolicy')
+            content = (<PrivacyPolicy/>);
+
         return (
             <div>
-                <DismissibleMessage visible={this.state.showMessage} handleDismiss={this.dismissMessage}
-                                    isSuccess={this.state.isSuccess} content={this.state.content}/>
-                <RegisterKeywordForm addKeyword={this.addKeyword}/>
-                <Divider section/>
-                <KeywordList keywords={this.state.keywords} deleteKeyword={this.deleteKeyword}/>
+                <Menu attached='top' pointing>
+                    <Menu.Item name='listKeyword' active={activeItem === 'listKeyword'} onClick={this.handleItemClick}/>
+                    <Menu.Item name='addKeyword' active={activeItem === 'addKeyword'} onClick={this.handleItemClick}/>
+                    <Menu.Menu position='right'>
+                        <Menu.Item name='privacyPolicy' active={activeItem === 'privacyPolicy'}
+                                   onClick={this.handleItemClick}/>
+                    </Menu.Menu>
+                </Menu>
+
+                <Segment>
+                    <DismissibleMessage visible={this.state.showMessage} handleDismiss={this.dismissMessage}
+                                        isSuccess={this.state.isSuccess} content={this.state.content}/>
+                    {content}
+                </Segment>
             </div>
         )
     }
