@@ -48,6 +48,9 @@ exports.listKeywords = function (req, res) {
 
         let pending = rows.length;
 
+        if (rows.length === 0)
+            return result.finishRequest(err, res, rows);
+
         for (let i = 0; i < rows.length; i++) {
             const newsInKeywordQuery = 'SELECT n.title, n.news_url, n.pub_date, n.author ' +
                 'FROM news n ' +
@@ -83,6 +86,9 @@ exports.listKeywordsWithId = function (req, res) {
         if (err) return result.finishRequest(err, res);
 
         let pending = rows.length;
+
+        if (rows.length === 0)
+            return result.finishRequest(err, res, rows);
 
         for (let i = 0; i < rows.length; i++) {
             const newsInKeywordQuery = 'SELECT n.title, n.news_url, n.pub_date, n.author ' +
