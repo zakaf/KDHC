@@ -48,9 +48,9 @@ export class ManageKeyword extends React.Component {
     };
 
     addKeyword(keyword, searchWord) {
-        fetch(config.serverUrl + "/addKeyword",
+        fetch(config.serverUrl + "/keyword",
             {
-                method: 'post',
+                method: 'put',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     type: 'NAVER',
@@ -72,9 +72,9 @@ export class ManageKeyword extends React.Component {
     }
 
     deleteKeyword(keyword) {
-        fetch(config.serverUrl + "/deleteKeyword",
+        fetch(config.serverUrl + "/keyword",
             {
-                method: 'post',
+                method: 'delete',
                 headers: {'Authorization': 'Bearer ' + this.props.idToken, 'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     keyword: keyword,
@@ -93,7 +93,7 @@ export class ManageKeyword extends React.Component {
     }
 
     loadData() {
-        fetch(config.serverUrl + "/listKeyword", {
+        fetch(config.serverUrl + "/keyword", {
             headers: {
                 'Authorization': 'Bearer ' + this.props.idToken,
                 'Cache-Control': 'no-cache'

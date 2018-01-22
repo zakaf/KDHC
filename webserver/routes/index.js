@@ -13,7 +13,11 @@ const config = require('./helper/config');
 const app = express();
 
 app.use(cors());
-app.use(morgan(config.logLevel));
+
+if (config.env !== 'test') {
+    app.use(morgan(config.logLevel));
+}
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -49,16 +53,14 @@ app.get('/keywords', card.listKeywords);
 app.get('/userKeywords', checkJwt, card.listKeywordsWithId);
 
 //ManageKeywords
-//list keywords according to users
-app.get('/listKeyword', checkJwt, keyword.listKeyword);
-
-//add keyword to the database with id from req.user.sub
-app.post('/addKeyword', checkJwt, keyword.addKeyword);
-
-//delete client_crawl_ct, crawl_url, news, when keyword is deleted
-app.post('/deleteKeyword', checkJwt, keyword.deleteKeyword);
+app.route('/keyword')
+    .get(checkJwt, keyword.listKeyword) //list keywords according to users
+    .put(checkJwt, keyword.addKeyword)  //add keyword to the database with id from req.user.sub
+    .delete(checkJwt, keyword.deleteKeyword); //delete client_crawl_ct, crawl_url, news, when keyword is deleted
 
 //Server Start
 app.listen(config.server.port, function () {
     console.log('web server listening on port ' + config.server.port)
 });
+
+module.exports = app;
