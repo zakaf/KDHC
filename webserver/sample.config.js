@@ -12,7 +12,24 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
-        logLevel: 'dev'
+        logLevel: 'dev',
+        env: 'development'
+    },
+    test: {
+        database: {
+            host: '..',
+            port: '..',
+            db: '..',
+            id: '..',
+            pw: '..'
+        },
+        //server details
+        server: {
+            host: '0.0.0.0',
+            port: '..'
+        },
+        logLevel: 'test',
+        env: 'test'
     },
     production: {
         database: {
@@ -27,7 +44,8 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
-        logLevel: 'combined'
+        logLevel: 'combined',
+        env: 'production'
     }
 };
 module.exports = config;
