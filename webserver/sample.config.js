@@ -12,6 +12,12 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
+        auth0: {
+            algorithm: '..',
+            audience: '..',
+            issuer: '..',
+            jwksUri: '..',
+        },
         logLevel: 'dev',
         env: 'development'
     },
@@ -28,6 +34,14 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
+        auth0: {
+            algorithm: '..',
+            audience: '..',
+            clientId: '..',
+            clientSecret: '..',
+            issuer: '..',
+            jwksUri: '..',
+        },
         logLevel: 'test',
         env: 'test'
     },
@@ -43,6 +57,12 @@ const config = {
         server: {
             host: '0.0.0.0',
             port: '..'
+        },
+        auth0: {
+            algorithm: '..',
+            audience: '..',
+            issuer: '..',
+            jwksUri: '..',
         },
         logLevel: 'combined',
         env: 'production'

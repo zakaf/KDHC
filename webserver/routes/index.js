@@ -30,13 +30,13 @@ const checkJwt = jwt({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: `https://dongkeunlee.auth0.com/.well-known/jwks.json`
+        jwksUri: config.auth0.jwksUri
     }),
 
     // Validate the audience and the issuer.
-    audience: 'mKamlyWKPNCrKow6Lsf3a0DFoT4jXXKe',
-    issuer: `https://dongkeunlee.auth0.com/`,
-    algorithms: ['RS256']
+    audience: config.auth0.audience,
+    issuer: config.auth0.issuer,
+    algorithms: [config.auth0.algorithm]
 });
 
 //Cards

@@ -9,6 +9,8 @@ let should = chai.should();
 
 let request = require("request");
 
+const config = require('../routes/helper/config');
+
 chai.use(chaiHttp);
 
 //Our parent block
@@ -16,11 +18,11 @@ describe('Keyword', () => {
     let token; //access_token for Auth0
 
     before(function (done) {
-        var options = {
+        const options = {
             method: 'POST',
             url: 'https://dongkeunlee.auth0.com/oauth/token',
             headers: {'content-type': 'application/json'},
-            body: '{"client_id":"sZuKhu3wbV3wQ8XTmA2IOdf6Lw3wKqTN","client_secret":"pztTrnkAuLXIk0aK1QDtIy6kFNXuCF8OySAoxp_S6y6RDmP1_Hyupkzpfy5Jzys_","audience":"https://dongkeunlee.auth0.com/api/v2/","grant_type":"client_credentials"}'
+            body: '{"client_id":"' + config.auth0.clientId + '","client_secret":"' + config.auth0.clientSecret + '","audience" : "' + config.auth0.audience + '","grant_type":"client_credentials"}'
         };
 
         request(options, function (error, response, body) {
@@ -39,8 +41,8 @@ describe('Keyword', () => {
         it('it should GET all the keywords', (done) => {
             chai.request(server)
                 .get('/keyword')
+                .set('Authorization', 'Bearer ' + token)
                 .end((err, res) => {
-                    console.log(token);
                     res.should.have.status(200);
                     done();
                 });
