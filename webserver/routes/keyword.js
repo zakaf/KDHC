@@ -16,6 +16,12 @@ exports.listKeyword = function (req, res) {
 };
 
 exports.addKeyword = function (req, res) {
+    if (typeof req.body.keyword !== 'string' ||
+        typeof req.body.searchWord !== 'string' ||
+        req.body.keyword.length === 0 ||
+        req.body.searchWord.length === 0)
+        return result.finishRequest({code: 'PROPER_INPUT_NEEDED'}, res);
+
     let url = req.body.searchWord;
 
     if (req.body.type === 'NAVER')
@@ -46,13 +52,17 @@ exports.addKeyword = function (req, res) {
 };
 
 exports.deleteKeyword = function (req, res) {
-    transaction.runTransaction(database.pool, function (conn, next) {
+    if (typeof req.body.keyword !== 'string' ||
+        req.body.keyword.length === 0)
+        return result.finishRequest({code: 'PROPER_INPUT_NEEDED'}, res);
 
+    transaction.runTransaction(database.pool, function (conn, next) {
         const selectKeywordQuery = 'SELECT crawl_url.url_id FROM client_crawl_ct inner join crawl_url on client_crawl_ct.url_id = crawl_url.url_id where crawl_url.keyword = ? and client_crawl_ct.client_id=?';
         conn.query(selectKeywordQuery, [req.body.keyword, req.user.sub], function (err, result) {
             if (err) return next(err, res);
 
-            if (result.length !== 1) return next({code: 'NO_KEYWORD_FOUND'}, res);
+            if (result.length !== 1)
+                return next({code: 'NO_KEYWORD_FOUND'}, res);
 
             const urlId = result[0].url_id;
 

@@ -60,7 +60,8 @@ app.route('/keyword')
 
 //Server Start
 app.listen(config.server.port, function () {
-    console.log('web server listening on port ' + config.server.port)
+    if (config.env !== 'test')
+        console.log('web server listening on port ' + config.server.port);
 });
 
 module.exports = app;
