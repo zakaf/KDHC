@@ -37,10 +37,9 @@ const config = {
         auth0: {
             algorithm: '..',
             audience: '..',
-            clientId: '..',
-            clientSecret: '..',
             issuer: '..',
             jwksUri: '..',
+            token: '',
         },
         logLevel: 'test',
         env: 'test'
