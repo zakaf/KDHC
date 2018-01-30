@@ -7,7 +7,7 @@
   "scripts": {
     "run": "SET NODE_ENV=development&& node routes/index.js",
     "test": "mocha --timeout 10000",
-    "start": "SET NODE_ENV=production&& node routes/index.js"
+    "start": "export NODE_ENV=production&& node routes/index.js"
   },
   "author": "",
   "license": "ISC",

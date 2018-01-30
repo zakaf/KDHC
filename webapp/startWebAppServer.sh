@@ -2,7 +2,7 @@
 
 today=`date '+%Y%m%d'`;
 
-npm install
+npm install --production
 
 npm run-script build
 
