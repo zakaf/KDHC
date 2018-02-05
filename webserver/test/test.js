@@ -156,6 +156,7 @@ describe('KDHC Webserver', () => {
                     .set('Authorization', 'Bearer ' + token)
                     .send({keyword: testCU[1].keyword, searchWord: testCU[1].searchWord})
                     .end((err, res) => {
+                        console.log(res.body);
                         res.should.have.status(200);
                         res.body.should.be.a('object');
                         res.body.should.have.property('status').eql('success');
