@@ -3,4 +3,11 @@ node_js:
   - "node"
 env:
   - TEST_DIR=webserver
+
+services:
+  - mysql
+
+before_install:
+  - mysql -e 'CREATE DATABASE kdhcTest; use kdhcTest;CREATE TABLE `client_crawl_ct` (`url_id` int(11) NOT NULL, `client_id` varchar(100) NOT NULL, PRIMARY KEY (`url_id`,`client_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8; CREATE TABLE `crawl_url` (`url_id` int(11) NOT NULL AUTO_INCREMENT, `url` varchar(300) DEFAULT NULL, `keyword` varchar(50) DEFAULT NULL, `mod_dtime` timestamp NULL DEFAULT NULL, PRIMARY KEY (`url_id`), KEY `idx_crawl_url_url_id_keyword` (`url_id`,`keyword`)) ENGINE=InnoDB AUTO_INCREMENT=545 DEFAULT CHARSET=utf8; CREATE TABLE `news_crawl_ct` (`news_url` varchar(255) NOT NULL, `url_id` int(11) NOT NULL, PRIMARY KEY (`news_url`,`url_id`), KEY `idx_news_crawl_ct_news_url` (`news_url`)) ENGINE=InnoDB DEFAULT CHARSET=utf8; CREATE TABLE `news` (`news_url` varchar(255) NOT NULL, `title` varchar(100) DEFAULT NULL, `description` text, `pub_date` datetime DEFAULT NULL, `author` varchar(50) DEFAULT NULL, `category` varchar(50) DEFAULT NULL, PRIMARY KEY (`news_url`), KEY `idx_news_pub_date` (`pub_date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+
 script: cd $TEST_DIR && npm install && npm test
