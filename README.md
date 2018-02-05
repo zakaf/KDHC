@@ -1,4 +1,4 @@
-# KDHC
+# KDHC [![Build Status](https://travis-ci.org/ldkz2524/KDHC.svg?branch=master)](https://travis-ci.org/ldkz2524/KDHC)
 
 News viewing web application based on Scrapy, Express and ReactJS.
 
