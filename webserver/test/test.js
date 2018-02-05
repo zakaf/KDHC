@@ -1,11 +1,10 @@
-//During the test the env variable is set to test
-process.env.NODE_ENV = 'test';
-
 //Require the dev-dependencies
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../routes/index');
 let should = chai.should();
+
+let request = require("request");
 
 const config = require('../routes/helper/config');
 const database = require('../routes/helper/database');
@@ -111,9 +110,27 @@ function addNCT(testCUId, testNewsId, done) {
 
 //KDHC Webserver Test
 describe('KDHC Webserver', () => {
-    const token = config.auth0.token;
+    let token;
     const clientId = 'sZuKhu3wbV3wQ8XTmA2IOdf6Lw3wKqTN@clients'; //test client id
     const testClientId = 'qwertyuiop'; //client id other than test client id
+
+    before(function (done) {
+        //get access token from Auth0
+        const options = {
+            method: 'POST',
+            url: 'https://dongkeunlee.auth0.com/oauth/token',
+            headers: {'content-type': 'application/json'},
+            body: '{"client_id":"sZuKhu3wbV3wQ8XTmA2IOdf6Lw3wKqTN","client_secret":"pztTrnkAuLXIk0aK1QDtIy6kFNXuCF8OySAoxp_S6y6RDmP1_Hyupkzpfy5Jzys_","audience" : "' + config.auth0.audience + '","grant_type":"client_credentials"}'
+        };
+
+        request(options, function (error, response, body) {
+            if (error) return done(error);
+
+            token = JSON.parse(body).access_token;
+
+            return done();
+        });
+    });
 
     //Test GET, PUT, DELETE for keyword
     describe('/keyword', () => {
@@ -156,7 +173,6 @@ describe('KDHC Webserver', () => {
                     .set('Authorization', 'Bearer ' + token)
                     .send({keyword: testCU[1].keyword, searchWord: testCU[1].searchWord})
                     .end((err, res) => {
-                        console.log(res.body);
                         res.should.have.status(200);
                         res.body.should.be.a('object');
                         res.body.should.have.property('status').eql('success');
