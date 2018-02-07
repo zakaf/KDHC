@@ -28,25 +28,32 @@ exports.addKeyword = function (req, res) {
         url = "http://newssearch.naver.com/search.naver?where=rss&query=" + urlEncode(req.body.searchWord);
 
     transaction.runTransaction(database.pool, function (conn, next) {
-        conn.query('SELECT url_id FROM crawl_url WHERE keyword = ? and url = ?', [req.body.keyword, url], function (err, rows) {
+        conn.query('SELECT url_id FROM crawl_url WHERE keyword = ? and url_id in (SELECT url_id FROM client_crawl_ct WHERE client_id = ?)', [req.body.keyword, req.user.sub], function (err, rows) {
             if (err) return next(err, res);
 
-            const insertCrawlUrlQuery = 'INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())';
-            const insertClientCrawlCtQuery = 'INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)';
+            if (rows.length !== 0)
+                return next({code: 'KEYWORD_ALREADY_EXISTS'}, res);
 
-            //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
-            if (rows.length === 0)
-                conn.query(insertCrawlUrlQuery, [url, req.body.keyword], function (err, crawlUrlResult) {
-                    if (err) return next(err, res);
+            conn.query('SELECT url_id FROM crawl_url WHERE keyword = ? and url = ?', [req.body.keyword, url], function (err, rows) {
+                if (err) return next(err, res);
 
-                    conn.query(insertClientCrawlCtQuery, [crawlUrlResult.insertId, req.user.sub], function (err) {
+                const insertCrawlUrlQuery = 'INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())';
+                const insertClientCrawlCtQuery = 'INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)';
+
+                //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
+                if (rows.length === 0)
+                    conn.query(insertCrawlUrlQuery, [url, req.body.keyword], function (err, crawlUrlResult) {
+                        if (err) return next(err, res);
+
+                        conn.query(insertClientCrawlCtQuery, [crawlUrlResult.insertId, req.user.sub], function (err) {
+                            return next(err, res);
+                        });
+                    });
+                else
+                    conn.query(insertClientCrawlCtQuery, [rows[0].url_id, req.user.sub], function (err) {
                         return next(err, res);
                     });
-                });
-            else
-                conn.query(insertClientCrawlCtQuery, [rows[0].url_id, req.user.sub], function (err) {
-                    return next(err, res);
-                });
+            });
         });
     }, result.finishRequest);
 };
