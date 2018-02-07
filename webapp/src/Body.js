@@ -1,12 +1,12 @@
 import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {Container} from 'semantic-ui-react'
-import NewsCard from './NewsCard';
-import KeywordCard from "./KeywordCard";
-import ManageKeyword from "./ManageKeyword";
-import Callback from "./Callback"
+import NewsCard from './card/NewsCard';
+import KeywordCard from "./card/KeywordCard";
+import ManageKeyword from "./manage/ManageKeyword";
+import Callback from "./helper/Callback"
 import './css/Body.css';
-import PrivacyPolicy from "./PrivacyPolicy";
+import PrivacyPolicy from "./manage/PrivacyPolicy";
 
 class Body extends React.Component {
     render() {
@@ -25,16 +25,16 @@ class Body extends React.Component {
                     <Route exact path='/' render={() => {
                         return <Redirect to='/news'/>
                     }}/>
-                    <Route path='/news' render={(props) => (
+                    <Route path='/news' render={() => (
                         <NewsCard sub={openIdSub} idToken={idToken}/>
                     )}/>
-                    <Route path='/keyword' render={(props) => (
+                    <Route path='/keyword' render={() => (
                         <KeywordCard sub={openIdSub} idToken={idToken}/>
                     )}/>
-                    <Route path='/manageKeyword' render={(props) => (
+                    <Route path='/manageKeyword' render={() => (
                         <ManageKeyword sub={openIdSub} idToken={idToken}/>
                     )}/>
-                    <Route path='/privacyPolicy' render={(props) => (
+                    <Route path='/privacyPolicy' render={() => (
                         <PrivacyPolicy/>
                     )}/>
                     <Route path="/callback" render={(props) => {

@@ -1,5 +1,5 @@
 import auth0 from 'auth0-js';
-import config from './config/config'
+import config from '../config/config'
 import history from './History';
 import decode from 'jwt-decode';
 

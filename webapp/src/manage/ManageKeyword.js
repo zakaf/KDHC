@@ -3,10 +3,9 @@ import {Menu, Segment} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import KeywordList from "./KeywordList";
 import RegisterKeywordForm from "./RegisterKeywordForm";
-import DismissibleMessage from "./DismissibleMessage";
+import DismissibleMessage from "../helper/DismissibleMessage";
 import PrivacyPolicy from './PrivacyPolicy';
-
-const config = require('./config/config.js');
+import config from '../config/config';
 
 export class ManageKeyword extends React.Component {
     handleItemClick = (e, {name}) => this.setState({activeItem: name});

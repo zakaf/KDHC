@@ -2,10 +2,11 @@ import React from 'react';
 import {Card, Divider, Feed, Segment} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
-import './css/Card.css';
-import './css/Feed.css';
-import './css/Divider.css';
-import NoKeywordMessage from "./NoKeywordMessage";
+import '../css/Card.css';
+import '../css/Feed.css';
+import '../css/Divider.css';
+import NoKeywordMessage from "../helper/NoKeywordMessage";
+import config from '../config/config';
 
 export class KeywordCard extends React.Component {
     constructor(props) {
@@ -20,8 +21,6 @@ export class KeywordCard extends React.Component {
     }
 
     loadData() {
-        const config = require('./config/config.js');
-
         this.setState({isFetching: true});
 
         const path = this.props.sub === '' ? "/keywords/" : "/userKeywords/";
@@ -40,8 +39,6 @@ export class KeywordCard extends React.Component {
 
     componentDidMount() {
         this.loadData();
-
-        const config = require('./config/config.js');
 
         let intervalId = setInterval(this.loadData, config.refreshInterval);
 

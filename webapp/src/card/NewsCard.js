@@ -1,8 +1,9 @@
 import React from 'react';
 import {Card, Icon, Segment, Visibility} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
-import './css/Card.css';
-import NoKeywordMessage from "./NoKeywordMessage";
+import '../css/Card.css';
+import NoKeywordMessage from "../helper/NoKeywordMessage";
+import config from '../config/config';
 
 export class NewsCard extends React.Component {
     handleUpdate = (e, {calculations}) => {
@@ -38,8 +39,6 @@ export class NewsCard extends React.Component {
                 nextPageNum: this.state.nextPageNum - 1
             });
 
-        const config = require('./config/config.js');
-
         this.setState({isFetching: true});
 
         const path = this.props.sub === '' ? "/news/" : "/userNews/";
@@ -71,8 +70,6 @@ export class NewsCard extends React.Component {
     }
 
     startRefresh() {
-        let config = require('./config/config.js');
-
         const intervalId = setTimeout(this.refreshData, config.refreshInterval);
 
         /* store intervalId in the state so it can be accessed later:*/
