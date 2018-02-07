@@ -122,9 +122,9 @@ export class ManageKeyword extends React.Component {
 
         let content = null;
 
-        if (activeItem === 'listKeyword')
+        if (activeItem === 'addKeyword')
             content = (<RegisterKeywordForm addKeyword={this.addKeyword}/>);
-        else if (activeItem === 'addKeyword')
+        else if (activeItem === 'listKeyword')
             content = (<KeywordList keywords={this.state.keywords} deleteKeyword={this.deleteKeyword}/>);
         else if (activeItem === 'privacyPolicy')
             content = (<PrivacyPolicy/>);
