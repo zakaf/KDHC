@@ -1,4 +1,5 @@
 import React from 'react';
+import {NavLink} from 'react-router-dom'
 import {Card, Divider, Feed, Segment} from 'semantic-ui-react';
 import TimeAgo from 'react-timeago';
 import 'semantic-ui-css/semantic.min.css';
@@ -74,10 +75,12 @@ export class KeywordCard extends React.Component {
 
                             prevColor = currColor;
 
+                            let expandKeywordUrl = '/keyword/' + row.keyword;
+
                             return (<Card key={row.keyword} color={currColor}>
                                 <Card.Content>
                                     <Card.Header>
-                                        {row.keyword}
+                                        <NavLink to={expandKeywordUrl}>{row.keyword}</NavLink>
                                     </Card.Header>
                                     <Divider/>
                                     {

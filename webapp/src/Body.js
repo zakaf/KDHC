@@ -31,6 +31,9 @@ class Body extends React.Component {
                     <Route path='/keyword' render={() => (
                         <KeywordCard sub={openIdSub} idToken={idToken}/>
                     )}/>
+                    <Route path="/keyword/:keyword" render={() => (
+                        <KeywordCard sub={openIdSub} idToken={idToken}/>
+                    )}/>
                     <Route path='/manageKeyword' render={() => (
                         <ManageKeyword sub={openIdSub} idToken={idToken}/>
                     )}/>
