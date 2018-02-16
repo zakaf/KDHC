@@ -28,11 +28,11 @@ class Body extends React.Component {
                     <Route path='/news' render={() => (
                         <NewsCard sub={openIdSub} idToken={idToken}/>
                     )}/>
-                    <Route path='/keyword' render={() => (
-                        <KeywordCard sub={openIdSub} idToken={idToken}/>
+                    <Route path="/keyword/:urlId" render={state => (
+                        <KeywordCard sub={openIdSub} idToken={idToken} urlId={state.match.params.urlId}/>
                     )}/>
-                    <Route path="/keyword/:keyword" render={() => (
-                        <KeywordCard sub={openIdSub} idToken={idToken}/>
+                    <Route path='/keyword' render={() => (
+                        <KeywordCard sub={openIdSub} idToken={idToken} urlId={idToken}/>
                     )}/>
                     <Route path='/manageKeyword' render={() => (
                         <ManageKeyword sub={openIdSub} idToken={idToken}/>

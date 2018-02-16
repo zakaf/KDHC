@@ -62,7 +62,6 @@ exports.listKeywords = function (req, res) {
             database.pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
                 if (err) return result.finishRequest(err, res);
 
-                delete rows[i].url_id;
                 rows[i].news = newsRows;
 
                 if (0 === --pending)
@@ -80,7 +79,8 @@ exports.listKeywordsWithId = function (req, res) {
         'inner join client_crawl_ct cct on cu.url_id = cct.url_id ' +
         'where cct.client_id = ? ' +
         'group by cu.url_id, cu.keyword ' +
-        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ';
+        'order by GROUP_CONCAT(pub_date SEPARATOR ", ") desc, cu.keyword asc ' +
+        'limit 20';
 
     database.pool.query(query, [req.user.sub], function (err, rows) {
         if (err) return result.finishRequest(err, res);
@@ -101,12 +101,42 @@ exports.listKeywordsWithId = function (req, res) {
             database.pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
                 if (err) return result.finishRequest(err, res);
 
-                delete rows[i].url_id;
                 rows[i].news = newsRows;
 
                 //when all the query is done, send the result. Queries are not necessarily done in order in which they started
                 if (0 === --pending)
                     return result.finishRequest(err, res, rows);
+            });
+        }
+    });
+};
+
+exports.listKeyword = function (req, res) {
+    const query = 'SELECT url_id, keyword FROM crawl_url WHERE url_id = ?';
+
+    database.pool.query(query, [req.params.id], function (err, rows) {
+        if (err) return result.finishRequest(err, res);
+
+        let pending = rows.length;
+
+        if (rows.length === 0)
+            return result.finishRequest(err, res, rows);
+
+        for (let i = 0; i < rows.length; i++) {
+            const newsInKeywordQuery = 'SELECT n.title, n.news_url, n.pub_date, n.author ' +
+                'FROM news n ' +
+                'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
+                'where nct.url_id = ? ' +
+                'order by n.pub_date desc ' +
+                'limit 20';
+
+            database.pool.query(newsInKeywordQuery, [rows[i].url_id], function (err, newsRows) {
+                if (err) return result.finishRequest(err, res);
+
+                rows[i].news = newsRows;
+
+                if (0 === --pending)
+                    result.finishRequest(err, res, rows);
             });
         }
     });

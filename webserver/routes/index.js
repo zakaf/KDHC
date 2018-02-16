@@ -52,6 +52,9 @@ app.get('/keywords', card.listKeywords);
 //returns top 20 news of a specific user in the order of published date
 app.get('/userKeywords', checkJwt, card.listKeywordsWithId);
 
+//return a keyword and its news for expanded view
+app.get('/keyword/:id', card.listKeyword);
+
 //ManageKeywords
 app.route('/keyword')
     .get(checkJwt, keyword.listKeyword) //list keywords according to users

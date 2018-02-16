@@ -16,7 +16,7 @@ export class KeywordCard extends React.Component {
             keyword: null,
             intervalId: null,
             isFetching: null,
-            isLoaded: false
+            isLoaded: false,
         };
         this.loadData = this.loadData.bind(this);
     }
@@ -24,7 +24,10 @@ export class KeywordCard extends React.Component {
     loadData() {
         this.setState({isFetching: true});
 
-        const path = this.props.sub === '' ? "/keywords/" : "/userKeywords/";
+        let path = this.props.sub === '' ? "/keywords/" : "/userKeywords/";
+
+        if (this.props.urlId)
+            path = "/keyword/" + this.props.urlId;
 
         fetch(config.serverUrl + path, {headers: {'Authorization': 'Bearer ' + this.props.idToken}})
             .then(response => response.json())
@@ -63,9 +66,11 @@ export class KeywordCard extends React.Component {
 
         let prevColor = null;
 
+        const numOfCardPerRow = this.props.urlId ? 1 : 3;
+
         return (
             <Segment basic loading={this.state.isFetching}>
-                <Card.Group itemsPerRow="3" stackable>
+                <Card.Group itemsPerRow={numOfCardPerRow} stackable>
                     {
                         this.state.keyword.map(function (row) {
                             let currColor = color[Math.floor(Math.random() * color.length)];
@@ -75,39 +80,41 @@ export class KeywordCard extends React.Component {
 
                             prevColor = currColor;
 
-                            let expandKeywordUrl = '/keyword/' + row.keyword;
+                            const url = numOfCardPerRow === 3 ? '/keyword/' + row.url_id : '/keyword';
 
-                            return (<Card key={row.keyword} color={currColor}>
-                                <Card.Content>
-                                    <Card.Header>
-                                        <NavLink to={expandKeywordUrl}>{row.keyword}</NavLink>
-                                    </Card.Header>
-                                    <Divider/>
-                                    {
-                                        row.news.map(function (newsRow) {
-                                            return (
-                                                <Feed key={newsRow.news_url}>
-                                                    <Feed.Event>
-                                                        <Feed.Label icon='newspaper'/>
-                                                        <Feed.Content>
-                                                            <Feed.Summary>
-                                                                <a href={newsRow.news_url}>{newsRow.title}</a>
-                                                            </Feed.Summary>
-                                                            <Feed.Meta>
-                                                                <Feed.Like>
-                                                                    {newsRow.author}
-                                                                    <Feed.Date>
-                                                                        <TimeAgo date={newsRow.pub_date}/>
-                                                                    </Feed.Date>
-                                                                </Feed.Like>
-                                                            </Feed.Meta>
-                                                        </Feed.Content>
-                                                    </Feed.Event>
-                                                </Feed>)
-                                        })
-                                    }
-                                </Card.Content>
-                            </Card>)
+                            return (
+                                <Card key={row.keyword} color={currColor}>
+                                    <Card.Content>
+                                        <Card.Header>
+                                            <NavLink to={url}>{row.keyword}</NavLink>
+                                        </Card.Header>
+                                        <Divider/>
+                                        {
+                                            row.news.map(function (newsRow) {
+                                                return (
+                                                    <Feed key={newsRow.news_url}>
+                                                        <Feed.Event>
+                                                            <Feed.Label icon='newspaper'/>
+                                                            <Feed.Content>
+                                                                <Feed.Summary>
+                                                                    <a href={newsRow.news_url}>{newsRow.title}</a>
+                                                                </Feed.Summary>
+                                                                <Feed.Meta>
+                                                                    <Feed.Like>
+                                                                        {newsRow.author}
+                                                                        <Feed.Date>
+                                                                            <TimeAgo date={newsRow.pub_date}/>
+                                                                        </Feed.Date>
+                                                                    </Feed.Like>
+                                                                </Feed.Meta>
+                                                            </Feed.Content>
+                                                        </Feed.Event>
+                                                    </Feed>)
+                                            })
+                                        }
+                                    </Card.Content>
+                                </Card>
+                            )
                         })
                     }
                 </Card.Group>
