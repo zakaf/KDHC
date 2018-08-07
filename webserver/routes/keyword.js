@@ -4,7 +4,7 @@ const transaction = require('./helper/transaction');
 const urlEncode = require('urlencode');
 
 exports.listKeyword = function (req, res) {
-    const selectKeywordQuery = 'SELECT cu.keyword, cu.mod_dtime ' +
+    const selectKeywordQuery = 'SELECT cu.keyword, UNIX_TIMESTAMP(cu.mod_dtime) as mod_dtime ' +
         'FROM client_crawl_ct cct ' +
         'inner join crawl_url cu on cct.url_id = cu.url_id ' +
         'where cct.client_id = ? ' +

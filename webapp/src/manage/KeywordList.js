@@ -18,6 +18,10 @@ export class KeywordList extends React.Component {
                 <List divided>
                     {
                         this.props.keywords.map((row) => {
+
+                            // in order to convert unix timestamp (in seconds) to milliseconds, multiple by 1000
+                            let date = new Date(row.mod_dtime * 1000);
+
                             return (<List.Item key={row.keyword}>
                                     <Button onClick={() => this.props.deleteKeyword(row.keyword)} floated='right'>
                                             Delete
@@ -30,7 +34,7 @@ export class KeywordList extends React.Component {
                                             </Header>
                                         </List.Header>
                                         <List.Content floated='left'>
-                                            <List.Description><TimeAgo date={row.mod_dtime}/></List.Description>
+                                            <List.Description><TimeAgo date={date}/></List.Description>
                                         </List.Content>
                                     </List.Content>
                                 </List.Item>
