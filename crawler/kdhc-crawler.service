@@ -1,0 +1,15 @@
+[Unit]
+Description=KDHC-Crawler
+
+[Service]
+EnvironmentFile=-[PATH TO KDHC]/KDHC/crawler
+ExecStart=[PATH TO KDHC]/KDHC/crawler/bin/startNewsCrawler.sh
+ExecStop=[PATH TO KDHC]/KDHC/crawler/bin/killServer.sh
+WorkingDirectory=[PATH TO KDHC]/KDHC/crawler/bin
+LimitNOFILE=4096
+IgnoreSIGPIPE=false
+KillMode=process
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
