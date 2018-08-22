@@ -2,8 +2,10 @@
 
 today=`date '+%Y%m%d'`;
 
+. /home/ubuntu/.nvm/nvm.sh
+
 npm install --production
 
 npm run-script build
 
-serve -s build -p 3000 > logs/$today.log 2>&1 &
+serve -s build -p 3000

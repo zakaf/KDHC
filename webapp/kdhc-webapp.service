@@ -1,0 +1,15 @@
+[Unit]
+Description=KDHC-Web Application Server
+
+[Service]
+EnvironmentFile=-[PATH TO KDHC]/KDHC/webapp
+ExecStart=[PATH TO KDHC]/KDHC/webapp/bin/start.sh
+ExecStop=[PATH TO KDHC]/KDHC/webapp/bin/killServer.sh
+WorkingDirectory=[PATH OT KDHC]/KDHC/webapp
+LimitNOFILE=4096
+IgnoreSIGPIPE=false
+KillMode=process
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
