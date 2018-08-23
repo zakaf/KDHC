@@ -12,6 +12,10 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
+        redis: {
+            host: '0.0.0.0',
+            port: '..'
+        },
         auth0: {
             algorithm: '..',
             audience: '..',
@@ -34,6 +38,10 @@ const config = {
             host: '0.0.0.0',
             port: '..'
         },
+        redis: {
+            host: '0.0.0.0',
+            port: '..'
+        },
         auth0: {
             algorithm: '..',
             audience: '..',
@@ -50,6 +58,10 @@ const config = {
             db: 'kdhcTest',
             id: 'travis',
             pw: ''
+        },
+        redis: {
+            host: '127.0.0.1',
+            port: '6379'
         },
         //server details
         server: {
@@ -75,6 +87,10 @@ const config = {
         },
         //server details
         server: {
+            host: '0.0.0.0',
+            port: '..'
+        },
+        redis: {
             host: '0.0.0.0',
             port: '..'
         },

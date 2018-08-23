@@ -1,6 +1,5 @@
-const mysql = require('mysql');
-
 const config = require('./config');
+const mysql = require('mysql');
 
 module.exports = Object.freeze({
     pool: mysql.createPool({
