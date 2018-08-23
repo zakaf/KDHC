@@ -13,7 +13,7 @@
     "react-timeago": "^4.1.9",
     "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.82.2",
-    "serve": "^9.4.0",
+    "serve": "^9.6.0",
     "whatwg-fetch": "^2.0.4"
   },
   "scripts": {
