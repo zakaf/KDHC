@@ -5,6 +5,8 @@ const redis = require('redis');
 module.exports = Object.freeze({
     client: redis.createClient(config.redis.port, config.redis.host),
     pushJSONArrayAsList: function (key, array, initializeBeforePush) {
+        let client = this.client;
+
         if (initializeBeforePush)
             client.del(key);
 
