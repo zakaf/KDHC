@@ -24,20 +24,8 @@ exports.listKeyword = function (req, res) {
                 'order by cu.mod_dtime desc';
 
             database.pool.query(selectKeywordQuery, [req.user.sub], function (err, rows) {
-                if (!err) {
-                    redis.client.del(cacheKey);
-
-                    let multi = redis.client.multi();
-
-                    rows.forEach(function (element) {
-                        multi.rpush(cacheKey, JSON.stringify(element));
-                    });
-
-                    multi.exec(function (err) {
-                        if (err)
-                            redis.client.del(cacheKey);
-                    })
-                }
+                if (!err)
+                    redis.pushJSONArrayAsList(cacheKey, rows, true);
 
                 return result.finishRequest(err, res, rows);
             });
