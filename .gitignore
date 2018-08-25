@@ -8,3 +8,4 @@ logs/
 *.swp
 dongkeun.config.js
 .idea/
+.vscode/

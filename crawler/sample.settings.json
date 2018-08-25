@@ -2,6 +2,5 @@
     "mysql.host" : "<MYSQL HOST URL>",
     "mysql.user" : "<MYSQL USER ID>",
     "mysql.password" : "<MYSQL USER PASSWORD>",
-    "mysql.db" : "<MYSQL DB NAME>",
-    "fcm.api_key" : "<FIREBASE CLOUD MESSAGING API KEY>"
+  "mysql.db": "<MYSQL DB NAME>"
 }

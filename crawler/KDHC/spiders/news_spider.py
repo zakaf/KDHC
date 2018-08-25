@@ -12,7 +12,7 @@ class NewsSpider(scrapy.Spider):
 
     def __init__(self, config='', *args, **kwargs):
         super(NewsSpider, self).__init__(*args, **kwargs)
-        self.dbconn = DBConn(config)
+        self.connection = DBConn(config)
 
     def start_requests(self):
         """ run crawl on urls in database """
@@ -26,7 +26,7 @@ class NewsSpider(scrapy.Spider):
     def get_crawl_url(self):
         """ return list of urls to crawl (only the ones in client_crawl_ct) """
 
-        conn = self.dbconn.get_conn()
+        conn = self.connection.get_conn()
 
         try:
             with conn.cursor() as cursor:
@@ -44,8 +44,6 @@ class NewsSpider(scrapy.Spider):
 
     def parse(self, response):
         """ parse and save news in the database """
-
-        conn = self.dbconn.get_conn()
 
         # under the assumption that no article that hasn't been saved to db
         # will be in between old articles
@@ -65,7 +63,7 @@ class NewsSpider(scrapy.Spider):
     def insert_news(self, news_url, title, description, pub_date, author, category, crawl_url):
         """ insert news """
 
-        conn = self.dbconn.get_conn()
+        conn = self.connection.get_conn()
 
         try:
             with conn.cursor() as cursor:
@@ -99,7 +97,7 @@ class NewsSpider(scrapy.Spider):
     def insert_crawl_ct(self, crawl_url, news_url):
         """ insert news_crawl_ct for correpsonding crawl_url and news_url """
         
-        conn = self.dbconn.get_conn()
+        conn = self.connection.get_conn()
 
         try:
             with conn.cursor() as cursor:
