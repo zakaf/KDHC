@@ -14,11 +14,14 @@ class NewsSpider(scrapy.Spider):
         super(NewsSpider, self).__init__(*args, **kwargs)
         self.dbconn = DBConn(config)
 
-        # Loads up configurations from a config file
-        with open(config, 'r') as cfg:
-            settings = json.load(cfg)
+    def start_requests(self):
+        """ run crawl on urls in database """
 
-        self.cts = {}
+        for url in self.get_crawl_url():
+            yield scrapy.Request(
+                url=url['url'],
+                callback=self.parse)
+
 
     def get_crawl_url(self):
         """ return list of urls to crawl (only the ones in client_crawl_ct) """
@@ -39,13 +42,25 @@ class NewsSpider(scrapy.Spider):
             conn.close()
         return result
 
-    def start_requests(self):
-        """ run crawl on urls in database """
+    def parse(self, response):
+        """ parse and save news in the database """
 
-        for url in self.get_crawl_url():
-            yield scrapy.Request(
-                url=url['url'],
-                callback=self.parse)
+        conn = self.dbconn.get_conn()
+
+        # under the assumption that no article that hasn't been saved to db
+        # will be in between old articles
+        # so it commits new articles until duplicate article is found
+        # When duplicate is found, raise integrity error
+        for item in response.xpath('//item'):
+            news_url = item.xpath('./link/text()').extract_first()
+            title = item.xpath('./title/text()').extract_first(),
+            description = item.xpath('./description/text()').extract_first()
+            pub_date = datetime.strptime(item.xpath('./pubDate/text()').extract_first()[:-6],'%a, %d %b %Y %H:%M:%S')
+            author = item.xpath('./author/text()').extract_first()
+            category = item.xpath('./category/text()').extract_first()
+
+            if (self.insert_news(news_url, title, description, pub_date, author, category, response.url) != 0):
+                break
 
     def insert_news(self, news_url, title, description, pub_date, author, category, crawl_url):
         """ insert news """
@@ -105,23 +120,4 @@ class NewsSpider(scrapy.Spider):
             conn.close()
 
         return 0
-
-    def parse(self, response):
-        """ parse and save news in the database """
-
-        conn = self.dbconn.get_conn()
-
-        # under the assumption that no article that hasn't been saved to db
-        # will be in between old articles
-        # so it commits new articles until duplicate article is found
-        # When duplicate is found, raise integrity error
-        for item in response.xpath('//item'):
-            news_url = item.xpath('./link/text()').extract_first()
-            title = item.xpath('./title/text()').extract_first(),
-            description = item.xpath('./description/text()').extract_first()
-            pub_date = datetime.strptime(item.xpath('./pubDate/text()').extract_first()[:-6],'%a, %d %b %Y %H:%M:%S')
-            author = item.xpath('./author/text()').extract_first()
-            category = item.xpath('./category/text()').extract_first()
-
-            if (self.insert_news(news_url, title, description, pub_date, author, category, response.url) != 0):
-                break
+        
