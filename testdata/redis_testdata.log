@@ -1,9 +1,0 @@
-Test with 1 keyword
-
-Retrieveing data from MySQL (on different AWS instance in the same region)
-GET /keyword 200 4.934 ms - 73
-GET /keyword 200 2.705 ms - 73
-
-Retrieving data from Redis (on the same instance as server)
-GET /keyword 200 1.323 ms - 73
-GET /keyword 200 1.132 ms - 73
