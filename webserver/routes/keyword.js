@@ -4,32 +4,22 @@ const result = require('./helper/result');
 const transaction = require('./helper/transaction');
 const urlEncode = require('urlencode');
 
+const userKeywordCacheKeyIdentifier = 'user:';
+const keywordCardCacheKeyIdentifier = 'keyword:';
+
 exports.listKeyword = function (req, res) {
-    let cacheKey = 'user:' + req.user.sub;
+    let cacheKey = userKeywordCacheKeyIdentifier + req.user.sub;
 
-    redis.client.llen(cacheKey, function (err, cacheLength) {
-        if (!err && cacheLength !== 0) {
-            // 0, -1 returns all elements in the list
-            redis.client.lrange(cacheKey, 0, -1, function (err, rows) {
-                for (let i = 0; i < rows.length; i++)
-                    rows[i] = JSON.parse(rows[i]);
+    let selectKeywordQuery = 'SELECT cu.keyword, UNIX_TIMESTAMP(cu.mod_dtime) as mod_dtime ' +
+        'FROM client_crawl_ct cct ' +
+        'inner join crawl_url cu on cct.url_id = cu.url_id ' +
+        'where cct.client_id = ? ' +
+        'order by cu.mod_dtime desc';
 
-                return result.finishRequest(err, res, rows);
-            });
-        } else {
-            const selectKeywordQuery = 'SELECT cu.keyword, UNIX_TIMESTAMP(cu.mod_dtime) as mod_dtime ' +
-                'FROM client_crawl_ct cct ' +
-                'inner join crawl_url cu on cct.url_id = cu.url_id ' +
-                'where cct.client_id = ? ' +
-                'order by cu.mod_dtime desc';
+    let params = [req.user.sub];
 
-            database.pool.query(selectKeywordQuery, [req.user.sub], function (err, rows) {
-                if (!err)
-                    redis.pushJSONArrayAsList(cacheKey, rows, true);
-
-                return result.finishRequest(err, res, rows);
-            });
-        }
+    redis.retrieveDataFromCacheOrDatabase(cacheKey, selectKeywordQuery, params, function (err, rows) {
+        result.finishRequest(err, res, rows);
     });
 };
 
@@ -58,7 +48,7 @@ exports.addKeyword = function (req, res) {
                 const insertCrawlUrlQuery = 'INSERT INTO crawl_url(url, keyword, mod_dtime) VALUES (?, ?, NOW())';
                 const insertClientCrawlCtQuery = 'INSERT INTO client_crawl_ct(url_id, client_id) VALUES(?,?)';
 
-                let cacheKey = 'user:' + req.user.sub;
+                let cacheKey = userKeywordCacheKeyIdentifier + req.user.sub;
 
                 //if no keyword and url combination doesn't exist, insert. If not, get inserted row's id
                 if (rows.length === 0)
@@ -109,8 +99,9 @@ exports.deleteKeyword = function (req, res) {
 
                         const deleteNewsQuery = 'DELETE FROM news WHERE news_url not in (SELECT news_url FROM news_crawl_ct)';
                         conn.query(deleteNewsQuery, [urlId], function (err) {
-                            let cacheKey = 'user:' + req.user.sub;
-                            redis.client.del(cacheKey);
+                            //invalidate userKeywordList and deleted keyword's card cache
+                            redis.client.del(userKeywordCacheKeyIdentifier + req.user.sub);
+                            redis.client.del(keywordCardCacheKeyIdentifier + urlId);
                             return next(err, res);
                         });
                     });
