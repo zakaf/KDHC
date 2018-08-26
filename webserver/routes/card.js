@@ -33,7 +33,7 @@ exports.listNewsWithId = function (req, res) {
     });
 };
 
-exports.listKeywords = function (req, res) {
+exports.listKeywordNews = function (req, res) {
     const query = 'SELECT cct.url_id, cu.keyword ' +
         'FROM news n ' +
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +
@@ -72,7 +72,7 @@ exports.listKeywords = function (req, res) {
     });
 };
 
-exports.listKeywordsWithId = function (req, res) {
+exports.listKeywordNewsWithId = function (req, res) {
     const query = 'SELECT cct.url_id, cu.keyword ' +
         'FROM news n ' +
         'inner join news_crawl_ct nct on n.news_url = nct.news_url ' +

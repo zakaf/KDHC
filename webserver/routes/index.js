@@ -47,10 +47,10 @@ app.get('/news/:pageNum', card.listNews);
 app.get('/userNews/:pageNum', checkJwt, card.listNewsWithId);
 
 //returns top 20 news in the order of published date
-app.get('/keywords', card.listKeywords);
+app.get('/keywords', card.listKeywordNews);
 
 //returns top 20 news of a specific user in the order of published date
-app.get('/userKeywords', checkJwt, card.listKeywordsWithId);
+app.get('/userKeywords', checkJwt, card.listKeywordNewsWithId);
 
 //ManageKeywords
 app.route('/keyword')
