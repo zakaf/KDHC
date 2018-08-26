@@ -2,5 +2,7 @@
     "mysql.host" : "<MYSQL HOST URL>",
     "mysql.user" : "<MYSQL USER ID>",
     "mysql.password" : "<MYSQL USER PASSWORD>",
-  "mysql.db": "<MYSQL DB NAME>"
+  "mysql.db": "<MYSQL DB NAME>",
+  "redis.host": "<REDIS HOST URL>",
+  "redis.port": "REDIS PORT"
 }

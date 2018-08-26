@@ -2,7 +2,7 @@
 import json
 import pymysql
 
-class DBConn(object):
+class Database(object):
     """ DB Connection helper class for KDHC """
 
     def __init__(self, config_file_name):

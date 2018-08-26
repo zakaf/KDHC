@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 import pymysql
 import scrapy
-from ..dbconn import DBConn
+from ..dbconn import Database
 
 class StockpriceSpider(scrapy.Spider):
     """ Spider for Naver Stock Price """
@@ -12,7 +12,7 @@ class StockpriceSpider(scrapy.Spider):
 
     def __init__(self, config='', *args, **kwargs):
         super(StockpriceSpider, self).__init__(*args, **kwargs)
-        self.dbconn = DBConn(config)
+        self.dbconn = Database(config)
 
         # Loads up configurations from a config file
         with open(config, 'r') as cfg:

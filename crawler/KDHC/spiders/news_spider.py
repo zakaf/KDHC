@@ -1,9 +1,10 @@
-""" import Statement """
-import json
+""" import statements """
+from ..dbconn import Database
 from datetime import datetime
+import json
 import pymysql
 import scrapy
-from ..dbconn import DBConn
+from ..redisconn import Redis
 
 class NewsSpider(scrapy.Spider):
     """ Spider for news crawler """
@@ -12,7 +13,8 @@ class NewsSpider(scrapy.Spider):
 
     def __init__(self, config='', *args, **kwargs):
         super(NewsSpider, self).__init__(*args, **kwargs)
-        self.connection = DBConn(config)
+        self.database = Database(config)
+        self.cache = Redis(config).get_conn()
 
     def start_requests(self):
         """ run crawl on urls in database """
@@ -26,7 +28,7 @@ class NewsSpider(scrapy.Spider):
     def get_crawl_url(self):
         """ return list of urls to crawl (only the ones in client_crawl_ct) """
 
-        conn = self.connection.get_conn()
+        conn = self.database.get_conn()
 
         try:
             with conn.cursor() as cursor:
@@ -49,6 +51,9 @@ class NewsSpider(scrapy.Spider):
         # will be in between old articles
         # so it commits new articles until duplicate article is found
         # When duplicate is found, raise integrity error
+
+        cacheInvalidated = False
+
         for item in response.xpath('//item'):
             news_url = item.xpath('./link/text()').extract_first()
             title = item.xpath('./title/text()').extract_first(),
@@ -59,11 +64,20 @@ class NewsSpider(scrapy.Spider):
 
             if (self.insert_news(news_url, title, description, pub_date, author, category, response.url) != 0):
                 break
+            elif (cacheInvalidated == False):
+                # invalidate keyword card and news card cache if new news has been added to the database
+                # invalidate keyword card cache
+                self.invalidateCacheForUrl(response.url)
+
+                # invalidate news card cache for all the pages
+                # invalidate user news card cache if user owns the following keyword
+                
+                cacheInvalidated = True
 
     def insert_news(self, news_url, title, description, pub_date, author, category, crawl_url):
         """ insert news """
 
-        conn = self.connection.get_conn()
+        conn = self.database.get_conn()
 
         try:
             with conn.cursor() as cursor:
@@ -97,7 +111,7 @@ class NewsSpider(scrapy.Spider):
     def insert_crawl_ct(self, crawl_url, news_url):
         """ insert news_crawl_ct for correpsonding crawl_url and news_url """
         
-        conn = self.connection.get_conn()
+        conn = self.database.get_conn()
 
         try:
             with conn.cursor() as cursor:
@@ -118,4 +132,24 @@ class NewsSpider(scrapy.Spider):
             conn.close()
 
         return 0
+    
+    def invalidateCacheForUrl(self, crawl_url):
+        """ invalidate cache for keywords with given crawl_url """
+
+        conn = self.database.get_conn()
+
+        try:
+            with conn.cursor() as cursor:
+                # get url ids of the given url
+                sql = "SELECT `url_id`"
+                sql += "FROM `crawl_url` "
+                sql += "WHERE `url` = %s"
+                cursor.execute(sql, (crawl_url))
+                result = cursor.fetchall()
+        except pymysql.Error as ex:
+            self.logger.error(str(ex))
+        finally:
+            conn.close()
         
+        for url in result:
+            self.cache.delete("keyword:"+`url['url_id']`)
