@@ -1,0 +1,86 @@
+Redis Cache Implementation Test
+--------------------
+KEYWORD LISTING
+----------
+With a 50 keywords user (Total 100 keywords in database)
+
+  Cache miss (Retrieving from MySQL on a different instance)
+    GET /keyword 200 6.995 ms - 2020
+    GET /keyword 200 3.549 ms - 2020
+    GET /keyword 200 4.589 ms - 2020
+    GET /keyword 200 3.306 ms - 2020
+    GET /keyword 200 4.099 ms - 2020
+    GET /keyword 200 3.422 ms - 2020
+    GET /keyword 200 4.149 ms - 2020
+    GET /keyword 200 3.472 ms - 2020
+    GET /keyword 200 4.326 ms - 2020
+    GET /keyword 200 3.400 ms - 2020
+    GET /keyword 200 3.381 ms - 2020
+
+    Max : 6.995ms
+    Min : 3.422ms
+    Avg : 4.063ms
+
+  Cache hit (Retrieving from Redis on the same instance as the server)
+    GET /keyword 200 1.457 ms - 2020
+    GET /keyword 200 1.252 ms - 2020
+    GET /keyword 200 1.286 ms - 2020
+    GET /keyword 200 1.256 ms - 2020
+    GET /keyword 200 1.202 ms - 2020
+    GET /keyword 200 1.258 ms - 2020
+    GET /keyword 200 1.249 ms - 2020
+    GET /keyword 200 1.263 ms - 2020
+    GET /keyword 200 1.269 ms - 2020
+    GET /keyword 200 1.314 ms - 2020
+    GET /keyword 200 1.284 ms - 2020
+
+    Max : 1.457ms
+    Min : 1.202ms
+    Avg : 1.281ms
+
+--------------------
+KEYWORD CARD NEWS LISTING
+----------
+Test with a user that owns 22 keywords
+
+  Before implementing cache functionality (pure MySQL)
+    GET /userKeywords/ 304 31.512 ms - -
+    GET /userKeywords/ 304 30.529 ms - -
+    GET /userKeywords/ 304 29.273 ms - -
+    GET /userKeywords/ 304 29.445 ms - -
+    GET /userKeywords/ 304 36.364 ms - -
+    GET /userKeywords/ 304 30.126 ms - -
+    GET /userKeywords/ 304 28.932 ms - -
+    GET /userKeywords/ 304 29.096 ms - -
+    
+    Max : 31.512
+    Min : 28.932
+    Avg : 30.659
+
+  Cache miss (Retrieving from MySQL on a different instance)
+    GET /userKeywords/ 304 34.769 ms - -
+    GET /userKeywords/ 304 31.952 ms - -
+    GET /userKeywords/ 304 29.319 ms - -
+    GET /userKeywords/ 304 30.424 ms - -
+    GET /userKeywords/ 304 29.525 ms - -
+    GET /userKeywords/ 304 30.857 ms - -
+    GET /userKeywords/ 304 29.080 ms - -
+
+    Max : 34.769
+    Min : 29.080
+    Avg : 30.847
+  
+
+  Cache hit (Retrieving from Redis on the same instance as the server)
+    GET /userKeywords/ 304 15.803 ms - -
+    GET /userKeywords/ 304 14.264 ms - -
+    GET /userKeywords/ 304 15.587 ms - -
+    GET /userKeywords/ 304 14.499 ms - -
+    GET /userKeywords/ 304 16.627 ms - -
+    GET /userKeywords/ 304 16.091 ms - -
+    GET /userKeywords/ 304 14.454 ms - -
+    GET /userKeywords/ 304 15.001 ms - -
+
+    Max : 16.627
+    Min : 14.264
+    Avg : 15.291
