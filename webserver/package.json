@@ -5,7 +5,7 @@
   "description": "webserver for newscard reactjs app",
   "main": "routes/index.js",
   "scripts": {
-    "run": "SET NODE_ENV=development&& node routes/index.js",
+    "run": "SET NODE_ENV=development&& node %NODE_DEBUG_OPTION% routes/index.js",
     "localTest": "SET NODE_ENV=localTest&&mocha --timeout 10000 --exit",
     "test": "export NODE_ENV=test&& mocha --timeout 10000 --exit",
     "start": "export NODE_ENV=production&& node routes/index.js"
