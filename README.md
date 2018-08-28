@@ -1,12 +1,79 @@
-# KDHC [![Build Status](https://travis-ci.org/ldkz2524/KDHC.svg?branch=master)](https://travis-ci.org/ldkz2524/KDHC)
+<a href="http://www.dongkeunlee.com"><img src="https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/KDHC_LOGO.png" title="KDHC" alt="KDHC"></a>
 
-News viewing web application based on Scrapy, Express and ReactJS.
+# <a href="http://www.dongkeunlee.com">KDHC</a>
 
-Start application running server/startServer.sh, webapp/startWebAppServer.sh and webserver/startWebServer.sh
+> News feed like single-page application based on Scrapy, Express, ReactJS and Semantic UI
 
-In order for three shell scripts to run correctly, config files have to be configured correctly. 
-(documentation to be updated)
+[![Build Status](https://travis-ci.org/ldkz2524/KDHC.svg?branch=master)](https://travis-ci.org/ldkz2524/KDHC)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Crawler for KDHC is using Scrapy as a framework
+![KDHC News Card](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/MainPage.PNG)
 
-The official website is http://www.dongkeunlee.com
+## Table of Contents
+
+- [Features](#features)
+- [Structure](#structure)
+- [Support](#support)
+- [License](#license)
+
+---
+
+## Features
+
+> PNG/GIF of features to be added
+
+### News Card
+
+- View news crawled using the keywords people / you've added
+
+### Keyword Card
+
+- View news grouped by the keywords people / you've added
+
+### List keywords
+
+- List keywords you've added
+
+### Add a keyword
+
+- Add a keyword with the matching search term
+
+### Delete a keyword
+
+- Delete a keyword that you've added in the past
+
+## Structure / Technology stack
+
+> Diagram of application configuration to be added
+
+### Crawler
+
+- Python + Scrapy
+
+### Application
+
+- **Back-End**
+
+  - Server
+    - Express + Morgan + Auth0 (JWT + JWKS)
+
+  - Data Store
+  
+    - Redis + MySQL (AWS RDBMS)
+
+  - Test Automation
+
+    - Mocha + Chai
+
+- **Front-End**
+
+  - React.js + Semantic UI
+
+## Support
+
+- Contact me at <mlb.oakland@gmail.com>
+
+## License
+
+- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+- Copyright 2018 © <a href="https://github.com/ldkz2524" target="_blank">DONGKEUN LEE</a>.
