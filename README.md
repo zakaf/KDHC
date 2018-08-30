@@ -20,19 +20,19 @@
 
 ### News Card
 
-![KDHC News Card](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/newsCard.gif)
+![KDHC News Card](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif)
 
 - View news crawled using the keywords people / you've added
 
 ### Keyword Card
 
-![KDHC Keyword Card](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/keywordCard.gif)
+![KDHC Keyword Card](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif)
 
 - View news grouped by the keywords people / you've added
 
 ### Manage keywords
 
-![KDHC Manage Keyword](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/manageKeyword.gif)
+![KDHC Manage Keyword](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/manageKeyword.gif)
 
 - List keywords you've added
 
