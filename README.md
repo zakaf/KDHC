@@ -1,5 +1,3 @@
-<a href="http://www.dongkeunlee.com"><img src="https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/KDHC_LOGO.png" title="KDHC" alt="KDHC"></a>
-
 # <a href="http://www.dongkeunlee.com">KDHC</a>
 
 > News feed like single-page application based on Scrapy, Express, ReactJS and Semantic UI
@@ -12,7 +10,7 @@
 ## Table of Contents
 
 - [Features](#features)
-- [Structure](#structure)
+- [Technology](#technology)
 - [Support](#support)
 - [License](#license)
 
@@ -20,29 +18,29 @@
 
 ## Features
 
-> PNG/GIF of features to be added
-
 ### News Card
+
+![KDHC News Card](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/newsCard.gif)
 
 - View news crawled using the keywords people / you've added
 
 ### Keyword Card
 
+![KDHC Keyword Card](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/keywordCard.gif)
+
 - View news grouped by the keywords people / you've added
 
-### List keywords
+### Manage keywords
+
+![KDHC Manage Keyword](https://s3.ap-northeast-2.amazonaws.com/kdhc-auth0/manageKeyword.gif)
 
 - List keywords you've added
 
-### Add a keyword
-
 - Add a keyword with the matching search term
-
-### Delete a keyword
 
 - Delete a keyword that you've added in the past
 
-## Structure / Technology stack
+## Technology
 
 > Diagram of application configuration to be added
 
