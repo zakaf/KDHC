@@ -72,6 +72,16 @@
 
 ## Improvement
 
+### Caching with Redis
+
+- **Keyword Listing**
+  - Average response time improved from 4.063ms to 1.281ms
+
+- **Keyword Card**
+  - Average response time improved from 30.659ms to 15.291ms
+
+<a href="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/redis_implementation_test.log">Link to test result</a>
+
 ## Support
 
 - Contact me at <mlb.oakland@gmail.com>
