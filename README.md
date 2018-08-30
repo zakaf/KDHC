@@ -20,13 +20,15 @@
 
 ### News Card
 
-<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif" width="572" height="589"><img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCardMobile.gif" width="285" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif" width="572" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCardMobile.gif" width="285" height="589">
 
 - View news crawled using the keywords people / you've added
 
 ### Keyword Card
 
-<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif" width="572" height="589"><img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCardMobile.gif" width="285" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif" width="572" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCardMobile.gif" width="285" height="589">
 
 - View news grouped by the keywords people / you've added
 
