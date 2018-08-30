@@ -20,19 +20,19 @@
 
 ### News Card
 
-![KDHC News Card](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif)
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif" width="572" height="589">
 
 - View news crawled using the keywords people / you've added
 
 ### Keyword Card
 
-![KDHC Keyword Card](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif)
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif" width="572" height="589">
 
 - View news grouped by the keywords people / you've added
 
 ### Manage keywords
 
-![KDHC Manage Keyword](https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/manageKeyword.gif)
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/manageKeyword.gif" width="572" height="589">
 
 - List keywords you've added
 
