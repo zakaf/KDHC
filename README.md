@@ -1,6 +1,6 @@
 # <a href="http://www.dongkeunlee.com">KDHC</a>
 
-> News feed like single-page application based on Scrapy, Express, ReactJS and Semantic UI
+> News feed like responsive single-page application based on Scrapy, Express, ReactJS and Semantic UI
 
 [![Build Status](https://travis-ci.org/ldkz2524/KDHC.svg?branch=master)](https://travis-ci.org/ldkz2524/KDHC)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -20,13 +20,13 @@
 
 ### News Card
 
-<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif" width="572" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCard.gif" width="572" height="589"><img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/newsCardMobile.gif" width="285" height="589">
 
 - View news crawled using the keywords people / you've added
 
 ### Keyword Card
 
-<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif" width="572" height="589">
+<img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCard.gif" width="572" height="589"><img src="https://raw.githubusercontent.com/ldkz2524/KDHC/master/etc/keywordCardMobile.gif" width="285" height="589">
 
 - View news grouped by the keywords people / you've added
 
