@@ -11,6 +11,7 @@
 
 - [Features](#features)
 - [Technology](#technology)
+- [Improvement](#improvement)
 - [Support](#support)
 - [License](#license)
 
@@ -68,6 +69,8 @@
 - **Front-End**
 
   - React.js + Semantic UI
+
+## Improvement
 
 ## Support
 
